@@ -1,0 +1,25 @@
+{
+  "name": "aps-viewer-ai-render",
+  "version": "1.0.0",
+  "description": "Sample to go from an image in a Viewer scene to a photorealistic render using AI",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoaoMartins-callmeJohn/aps-viewer-ai-render.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoaoMartins-callmeJohn/aps-viewer-ai-render/issues"
+  },
+  "homepage": "https://github.com/JoaoMartins-callmeJohn/aps-viewer-ai-render#readme",
+  "dependencies": {
+    "cookie-session": "^2.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "forge-apis": "^0.9.9"
+  }
+}
