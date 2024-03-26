@@ -18,16 +18,12 @@
 class ImageRenderExtension extends Autodesk.Viewing.Extension {
   constructor(viewer, options) {
     super(viewer, options);
-    this._panel = null;
   }
 
   onToolbarCreated(toolbar) {
-    this._panel = new ImageRenderPanel(this, 'image-render-panel', 'Image Render', { x: 10, y: 10 });
-    this._button = this.createToolbarButton('imagerender-button', 'https://img.icons8.com/ios/50/pipelines.png', 'Image Render');
+    this._button = this.createToolbarButton('imagerender-button', 'https://img.icons8.com/ios/30/camera--v3.png', 'Image Render');
     this._button.onClick = async () => {
-      const { ACTIVE, INACTIVE } = Autodesk.Viewing.UI.Button.State;
-      this._panel.setVisible(!this._panel.isVisible());
-      this._button.setState(this._panel.isVisible() ? ACTIVE : INACTIVE);
+      this.generateThumbnail();
     };
   }
 
@@ -89,30 +85,23 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
     });
   }
 
+  async generateThumbnail() {
+    //Values for AI model below
+    let vw = 512;
+    let vh = 512;
+    this.viewer.getScreenShot(vw, vh, blob => {
+      var image = new Image();
+      image.src = blob;
+      var tag = document.createElement('a');
+      tag.href = blob;
+      tag.download = `testingimage.png`;
+      document.body.appendChild(tag);
+      tag.click();
+      document.body.removeChild(tag);
+      
+    });
+  }
+
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension('ImageRenderExtension', ImageRenderExtension);
-
-class ImageRenderPanel extends Autodesk.Viewing.UI.DockingPanel {
-  constructor(extension, id, title, options) {
-    super(extension.viewer.container, id, title);
-    this.extension = extension;
-    this.container.style.left = (options.x || 0) + 'px';
-    this.container.style.top = (options.y || 0) + 'px';
-    this.container.style.width = (options.width || 1024) + 'px';
-    this.container.style.height = (options.height || 1024) + 'px';
-    this.container.style.resize = 'none';
-    this.container.style.overflow = 'overlay';
-    this.container.style.backgroundColor = 'transparent';
-  }
-
-  initialize() {
-    this.title = this.createTitleBar(this.titleLabel || this.container.id);
-    this.title.style.overflow = 'auto';
-    this.initializeMoveHandlers(this.title);
-    this.container.appendChild(this.title);
-
-    this.div = document.createElement('div');
-    this.container.appendChild(this.div);
-  }
-}
