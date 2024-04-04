@@ -18,7 +18,7 @@ export function initViewer(container) {
   return new Promise(function (resolve, reject) {
       Autodesk.Viewing.Initializer({ env: 'AutodeskProduction', getAccessToken }, function () {
           const config = {
-              extensions: ['Autodesk.DocumentBrowser', 'ImageRenderExtension']
+              extensions: ['Autodesk.DocumentBrowser', 'ImageRenderExtension', 'Autodesk.NPR']
           };
           const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
           viewer.start();

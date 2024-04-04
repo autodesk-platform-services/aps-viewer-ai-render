@@ -22,15 +22,19 @@ body, html {
   width: 25%;
   left: 0;
   top: 3em;
-  bottom: 0;
+  bottom: 5em;
   overflow-y: scroll;
 }
 
-#preview {
+#preview, #image {
   width: 75%;
   right: 0;
   top: 3em;
-  bottom: 0;
+  bottom: 5em;
+}
+
+#image {
+  resize: horizontal;
 }
 
 #header > * {

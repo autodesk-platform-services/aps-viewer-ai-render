@@ -7,4 +7,5 @@ app.use(express.static('wwwroot'));
 app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
 app.use(require('./routes/auth.js'));
 app.use(require('./routes/hubs.js'));
+app.use(require('./routes/comfy.js'));
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));

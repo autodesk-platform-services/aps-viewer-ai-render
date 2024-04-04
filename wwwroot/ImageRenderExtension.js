@@ -18,13 +18,75 @@
 class ImageRenderExtension extends Autodesk.Viewing.Extension {
   constructor(viewer, options) {
     super(viewer, options);
+    this.views = [];
   }
 
   onToolbarCreated(toolbar) {
     this._button = this.createToolbarButton('imagerender-button', 'https://img.icons8.com/ios/30/camera--v3.png', 'Image Render');
     this._button.onClick = async () => {
-      this.generateThumbnail();
+      // a post request to /api/workflow using fetch
+      let positivePrompt = document.getElementById('positiveprompt').value;
+      let negativePrompt = document.getElementById('negativeprompt').value;
+      let resp = await fetch(`/api/workflows?pos_prompt=${positivePrompt}&neg_prompt=${negativePrompt}`, {
+        method: 'POST'
+      });
+      let workflowJSON = await resp.json();
+      let workflowId = workflowJSON.id;
+      let status = 'QUEUED';
+      let workflowRun = {};
+      while (status != 'COMPLETED' & status != 'ERROR') {
+        resp = await fetch(`/api/workflows?run_id=${workflowId}`, {
+          method: 'GET'
+        });
+        workflowJSON = await resp.json();
+        status = workflowJSON.run.status;
+        workflowRun = workflowJSON.run;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      if(status == 'COMPLETED'){
+        // add on img element inside the div with id thumbnails using one url as source
+        let img = document.createElement('img');
+        img.src = workflowRun.output[0].thumbnail_url;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        document.getElementById('thumbnails').appendChild(img);
+      }
+      // await this.generateThumbnail('inputimage');
+      // //sleep for 0.3 seconds
+      // await new Promise(resolve => setTimeout(resolve, 300));
+      // this.viewer.setBackgroundColor(255, 255, 255, 255, 255, 255);
+      // let dbIds = await this.getViewElements();
+      // this.viewer.isolate(dbIds);
+      // await this.configureForLineStyle(dbIds);
+      // await this.generateThumbnail('linestylemask');
+      // this.viewer.clearThemingColors();
+      // //sleep for 0.3 seconds
+      // await new Promise(resolve => setTimeout(resolve, 300));
+      // await this.configureForSegmentation(dbIds);
+      // await this.generateThumbnail('segmentationmask');
+      // this.viewer.clearThemingColors();
+      // //sleep for 0.3 seconds
+      // // await new Promise(resolve => setTimeout(resolve, 300));
+      // // let pixels = await this.retrieveDepthMapPixels();
+      // // await this.generateThumbnail('depthmap');
+      // //sleep for 0.3 seconds
+      // await new Promise(resolve => setTimeout(resolve, 300));
+      // await this.configureForLineStyleNPR(dbIds);
+      // await this.generateThumbnail('linestylenprmask');
     };
+  }
+
+  retrieveDepthMapPixels(){
+    this.viewer.impl.renderer().mrtFlags()
+    const depthTarget = this.viewer.impl.renderer().getDepthTarget();
+    const gl = this.viewer.canvas.getContext('webgl2');
+    const pixels = new Float32Array(4 * depthTarget.width * depthTarget.height);
+    const framebuffer = depthTarget.__webglFramebuffer;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);        
+    gl.viewport(0, 0, depthTarget.width, depthTarget.height);
+    gl.readPixels(0, 0, depthTarget.width, depthTarget.height, gl.RGBA, gl.FLOAT, pixels);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    return pixels;
   }
 
   createToolbarButton(buttonId, buttonIconUrl, buttonTooltip) {
@@ -65,6 +127,15 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
     return true;
   }
 
+  async getViewElements() {
+    const tool = this.viewer.getExtension('Autodesk.BoxSelection').boxSelectionTool;
+    const { left: startX, top: startY, right: endX, bottom: endY } = this.viewer.impl.getCanvasBoundingClientRect();
+    tool.startPoint.set(startX, startY);
+    tool.endPoint.set(endX, endY);
+    let selection = await tool.getSelection();
+    return selection[0].ids;
+  }
+
   findLeafNodes(model) {
     return new Promise(function (resolve, reject) {
       model.getObjectTree(function (tree) {
@@ -85,23 +156,21 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
     });
   }
 
-  async generateThumbnail() {
+  async generateThumbnail(imagename) {
     //Values for AI model below
     let vw = 512;
     let vh = 512;
-    this.viewer.getScreenShot(vw, vh, blob => {
+    await this.viewer.getScreenShot(vw, vh, blob => {
       var image = new Image();
       image.src = blob;
       var tag = document.createElement('a');
       tag.href = blob;
-      tag.download = `testingimage.png`;
+      tag.download = `${imagename}.png`;
       document.body.appendChild(tag);
       tag.click();
       document.body.removeChild(tag);
-      
     });
   }
-
 }
 
 Autodesk.Viewing.theExtensionManager.registerExtension('ImageRenderExtension', ImageRenderExtension);
