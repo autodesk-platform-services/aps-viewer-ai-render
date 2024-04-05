@@ -18,7 +18,7 @@
 class ImageRenderExtension extends Autodesk.Viewing.Extension {
   constructor(viewer, options) {
     super(viewer, options);
-    this.views = [];
+    this.views = {};
   }
 
   onToolbarCreated(toolbar) {
@@ -41,15 +41,26 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
         workflowJSON = await resp.json();
         status = workflowJSON.run.status;
         workflowRun = workflowJSON.run;
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        this.showToast(status);
       }
       if(status == 'COMPLETED'){
         // add on img element inside the div with id thumbnails using one url as source
         let img = document.createElement('img');
         img.src = workflowRun.output[0].thumbnail_url;
-        img.style.width = '100%';
-        img.style.height = '100%';
+        img.style.width = '5em';
+        img.style.height = '5em';
+        img.id = workflowId;
+        this.views[workflowId] = workflowRun.output[0].url;
         document.getElementById('thumbnails').appendChild(img);
+        //react to img being clicked and print the img id
+        img.onclick = (ev) => {
+          let imgURL = this.views[ev.target.id];
+          let imageElement  = document.getElementById('image');
+          imageElement.style.visibility = 'visible';
+          imageElement.style.backgroundImage = `url(${imgURL})`;
+          imageElement.style.backgroundRepeat = 'no-repeat,no-repeat';
+        }
       }
       // await this.generateThumbnail('inputimage');
       // //sleep for 0.3 seconds
@@ -170,6 +181,16 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
       tag.click();
       document.body.removeChild(tag);
     });
+  }
+
+  async showToast(message) {
+    Swal.fire({
+      title: message,
+      timer: 3000,
+      toast: true,
+      position: 'top',
+      showConfirmButton: false
+    })
   }
 }
 

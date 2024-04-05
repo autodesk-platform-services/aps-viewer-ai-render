@@ -192,7 +192,7 @@ service.runWorkflow = async (workflowId, positiveprompt, negativePrompt) => {
             "content-type": "application/json",
             "authorization": "Bearer " + COMFY_KEY
         },
-        "body": JSON.stringify({ prompt }),
+        "body": JSON.stringify(prompt),
         "method": "POST"
     });
     return await resp.json();

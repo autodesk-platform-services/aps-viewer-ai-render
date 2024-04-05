@@ -26,6 +26,14 @@ body, html {
   overflow-y: scroll;
 }
 
+#positiveprompt, #negativeprompt{
+  display: block;
+  margin: 1em;
+  height: 2em;
+  width: 60%;
+  text-align: center;
+}
+
 #preview, #image {
   width: 75%;
   right: 0;
@@ -35,6 +43,9 @@ body, html {
 
 #image {
   resize: horizontal;
+  z-index:2;
+  position:fixed;
+  
 }
 
 #header > * {
@@ -50,6 +61,10 @@ body, html {
 #header .title {
   height: auto;
   margin-right: auto;
+}
+
+#thumbnails{
+  margin: 1em;
 }
 
 #tree {
