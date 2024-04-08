@@ -8,23 +8,49 @@
     <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css">
     <link rel="stylesheet" href="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-light.min.css">
     <link rel="stylesheet" href="/main.css">
-    <title>Autodesk Platform Services: Hubs Browser</title>
+    <title>Autodesk Platform Services: AI pretty pictures stuff</title>
+    <script>
+        var CURRENT_MODEL = '';
+    </script>
 </head>
 
 <body>
     <div id="header">
         <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png" alt="Autodesk Platform Services">
-        <span class="title">Hubs Browser</span>
+        <span class="title">AI stuff</span>
+        <sl-switch id="viewer-switch" size="medium" checked>Viewer</sl-switch>
         <button id="login" style="visibility: hidden;">Login</button>
     </div>
     <div id="sidebar">
         <input type="text" id="positiveprompt" placeholder="your positive prompt goes here">
-        <input type="text" id="negativeprompt" placeholder="your negative prompt goes here">
         <div id="tree"></div>
-        <div id="thumbnails"></div>
+        <div class="mouse-dragging" id="images-container">
+            <sl-carousel pagination id="itens-container">
+              <sl-carousel-item>
+                <img
+                  alt="The sun shines on the mountains and trees (by Adam Kool on Unsplash)"
+                  src="/assets/examples/carousel/mountains.jpg"
+                />
+              </sl-carousel-item>
+            </sl-carousel>
+          
+            <sl-divider></sl-divider>
+          </div>          
     </div>
-    <div id="preview"></div>
-    <div id="image" style="visibility: hidden;"></div>
+    <div id="preview" class="comp viewer-container"></div>
+    <sl-image-comparer id="image-comparer" style="visibility:hidden;">
+        <img id="image-left"
+          slot="before"
+          src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80&sat=-100&bri=-5"
+          alt="Place for the Viewer image."
+        />
+        <img id="image-right"
+          slot="after"
+          src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+          alt="Place for AI rendered image."
+        />
+      </sl-image-comparer>
+    <!-- <div id="image" style="visibility: hidden;"></div> -->
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="https://unpkg.com/inspire-tree@4.3.1/dist/inspire-tree.js"></script>
@@ -33,6 +59,11 @@
     <script src="ImageRenderExtension.js"></script>
     <!-- Sweetalert2 to handle notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Shoelace components -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/shoelace-autoloader.js"></script>
+
+
 </body>
 
 </html>

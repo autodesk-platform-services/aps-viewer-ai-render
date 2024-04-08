@@ -61,6 +61,8 @@ export function initTree(selector, onSelectionChanged) {
       const tokens = node.id.split('|');
       if (tokens[0] === 'version') {
           onSelectionChanged(tokens[1]);
+          CURRENT_MODEL = node.itree.parent.text;
+          // NIO_VIEWER.getExtension('').refreshImages();
       }
   });
   return new InspireTreeDOM(tree, { target: selector });

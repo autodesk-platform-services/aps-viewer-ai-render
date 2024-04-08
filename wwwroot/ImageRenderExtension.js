@@ -24,9 +24,12 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
   onToolbarCreated(toolbar) {
     this._button = this.createToolbarButton('imagerender-button', 'https://img.icons8.com/ios/30/camera--v3.png', 'Image Render');
     this._button.onClick = async () => {
+      //First we send the thumbnail to the OSS bucket
+      const imageName = Date.now() + CURRENT_MODEL;
+      this.generateThumbnail(imageName);
       // a post request to /api/workflow using fetch
       let positivePrompt = document.getElementById('positiveprompt').value;
-      let negativePrompt = document.getElementById('negativeprompt').value;
+      let negativePrompt = 'ugly,nsfw';
       let resp = await fetch(`/api/workflows?pos_prompt=${positivePrompt}&neg_prompt=${negativePrompt}`, {
         method: 'POST'
       });
@@ -45,46 +48,42 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
         this.showToast(status);
       }
       if(status == 'COMPLETED'){
+        const response = await fetch(workflowRun.output[0].url);
+        // here image is url/location of image
+        const blob = await response.blob();
+        const file = new File([blob], imageName, {type: blob.type});
+        let data = new FormData();
+        data.append('image-file', file);
+        const resp = await fetch('/api/images', { method: 'POST', body: data });
+        refreshImages();
         // add on img element inside the div with id thumbnails using one url as source
-        let img = document.createElement('img');
-        img.src = workflowRun.output[0].thumbnail_url;
-        img.style.width = '5em';
-        img.style.height = '5em';
-        img.id = workflowId;
-        this.views[workflowId] = workflowRun.output[0].url;
-        document.getElementById('thumbnails').appendChild(img);
+        // let img = document.createElement('img');
+        // img.src = workflowRun.output[0].thumbnail_url;
+        // img.style.width = '5em';
+        // img.style.height = '5em';
+        // img.id = workflowId;
+        // this.views[workflowId] = workflowRun.output[0].url;
+        // document.getElementById('thumbnails').appendChild(img);
         //react to img being clicked and print the img id
-        img.onclick = (ev) => {
-          let imgURL = this.views[ev.target.id];
-          let imageElement  = document.getElementById('image');
-          imageElement.style.visibility = 'visible';
-          imageElement.style.backgroundImage = `url(${imgURL})`;
-          imageElement.style.backgroundRepeat = 'no-repeat,no-repeat';
-        }
+        // img.onclick = (ev) => {
+        //   let imgURL = this.views[ev.target.id];
+        //   let imageElement  = document.getElementById('image');
+        //   imageElement.style.visibility = 'visible';
+        //   imageElement.style.backgroundImage = `url(${imgURL})`;
+        //   imageElement.style.backgroundRepeat = 'no-repeat,no-repeat';
+        // }
       }
-      // await this.generateThumbnail('inputimage');
-      // //sleep for 0.3 seconds
-      // await new Promise(resolve => setTimeout(resolve, 300));
-      // this.viewer.setBackgroundColor(255, 255, 255, 255, 255, 255);
-      // let dbIds = await this.getViewElements();
-      // this.viewer.isolate(dbIds);
-      // await this.configureForLineStyle(dbIds);
-      // await this.generateThumbnail('linestylemask');
-      // this.viewer.clearThemingColors();
-      // //sleep for 0.3 seconds
-      // await new Promise(resolve => setTimeout(resolve, 300));
-      // await this.configureForSegmentation(dbIds);
-      // await this.generateThumbnail('segmentationmask');
-      // this.viewer.clearThemingColors();
-      // //sleep for 0.3 seconds
-      // // await new Promise(resolve => setTimeout(resolve, 300));
-      // // let pixels = await this.retrieveDepthMapPixels();
-      // // await this.generateThumbnail('depthmap');
-      // //sleep for 0.3 seconds
-      // await new Promise(resolve => setTimeout(resolve, 300));
-      // await this.configureForLineStyleNPR(dbIds);
-      // await this.generateThumbnail('linestylenprmask');
     };
+  }
+
+  refreshImages(){
+    
+    let newImageItem = `<sl-carousel-item>
+      <img
+        alt="The sun shines on the mountains and trees (by Adam Kool on Unsplash)"
+        src="/assets/examples/carousel/mountains.jpg"
+      />
+    </sl-carousel-item>`;
   }
 
   retrieveDepthMapPixels(){
@@ -168,18 +167,21 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
   }
 
   async generateThumbnail(imagename) {
-    //Values for AI model below
-    let vw = 512;
-    let vh = 512;
-    await this.viewer.getScreenShot(vw, vh, blob => {
-      var image = new Image();
-      image.src = blob;
-      var tag = document.createElement('a');
-      tag.href = blob;
-      tag.download = `${imagename}.png`;
-      document.body.appendChild(tag);
-      tag.click();
-      document.body.removeChild(tag);
+    const { left: startX, top: startY, right: endX, bottom: endY } = this.viewer.impl.getCanvasBoundingClientRect();
+    let vw = endX-startX;
+    let vh = endY-startY;
+    await this.viewer.getScreenShot(vw, vh, async (blob) => {
+
+      var file = new File([blob], imagename);
+      let data = new FormData();
+      data.append('image-file', file);
+      const resp = await fetch('/api/images', { method: 'POST', body: data });
+      // var tag = document.createElement('a');
+      // tag.href = blob;
+      // tag.download = `${imagename}.png`;
+      // document.body.appendChild(tag);
+      // tag.click();
+      // document.body.removeChild(tag);
     });
   }
 

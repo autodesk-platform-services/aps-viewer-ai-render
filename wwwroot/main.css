@@ -34,11 +34,12 @@ body, html {
   text-align: center;
 }
 
-#preview, #image {
+#preview {
   width: 75%;
   right: 0;
   top: 3em;
   bottom: 5em;
+  /* position: absolute; */
 }
 
 #image {
@@ -63,6 +64,13 @@ body, html {
   margin-right: auto;
 }
 
+#viewer-switch{
+  left: 17em;
+  margin-right: auto;
+  margin-top: 0.3em;
+  position: absolute;
+}
+
 #thumbnails{
   margin: 1em;
 }
@@ -82,6 +90,12 @@ body, html {
       top: 25%;
       bottom: 0;
   }
+}
+
+#image-comparer{
+  position: absolute;
+  left: 25%;
+  top: 3em;
 }
 
 .icon-hub:before {

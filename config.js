@@ -5,7 +5,7 @@ if (!APS_CLIENT_ID || !APS_CLIENT_SECRET || !APS_CALLBACK_URL || !SERVER_SESSION
     console.warn('Missing some of the environment variables.');
     process.exit(1);
 }
-const INTERNAL_TOKEN_SCOPES = ['data:read'];
+const INTERNAL_TOKEN_SCOPES = ['bucket:read', 'bucket:create', 'data:read', 'data:write', 'data:create'];
 const PUBLIC_TOKEN_SCOPES = ['viewables:read'];
 PORT = PORT || 8080;
 
