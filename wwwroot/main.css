@@ -98,6 +98,12 @@ body, html {
   top: 3em;
 }
 
+.mouse-dragging{
+  width: 50%;
+  margin-top: 3em;
+  margin-left: 3em;
+}
+
 .icon-hub:before {
   background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/apps-16.svg); /* or https://raw.githubusercontent.com/primer/octicons/main/icons/stack-16.svg */
   background-size: cover;

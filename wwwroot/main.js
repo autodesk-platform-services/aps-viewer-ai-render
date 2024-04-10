@@ -10,14 +10,18 @@ carousel.toggleAttribute('mouse-dragging', true);
 const viewerSwitch = document.getElementById('viewer-switch');
 const viewerContainer = document.getElementById('preview');
 const imagesContainer  = document.getElementById('image-comparer');
+const thumbnailsContainer = document.getElementById('thumbnails-container');
 viewerSwitch.addEventListener('sl-change', (ev) => {
     if(ev.target.checked){
         viewerContainer.style.visibility = 'visible';
         imagesContainer.style.visibility = 'hidden';
+        thumbnailsContainer.style.visibility = 'hidden';
     }
     else{
         viewerContainer.style.visibility = 'hidden';
         imagesContainer.style.visibility = 'visible';
+        thumbnailsContainer.style.visibility = 'visible';
+        NOP_VIEWER.getExtension('ImageRenderExtension').refreshImages();
     }
 });
 try {

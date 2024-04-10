@@ -25,8 +25,8 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
     this._button = this.createToolbarButton('imagerender-button', 'https://img.icons8.com/ios/30/camera--v3.png', 'Image Render');
     this._button.onClick = async () => {
       //First we send the thumbnail to the OSS bucket
-      const imageName = Date.now() + CURRENT_MODEL;
-      this.generateThumbnail(imageName);
+      const imageName = Date.now() + CURRENT_MODEL.split('.')[0] + '.png';
+      this.generateThumbnail('lmv'+imageName);
       // a post request to /api/workflow using fetch
       let positivePrompt = document.getElementById('positiveprompt').value;
       let negativePrompt = 'ugly,nsfw';
@@ -48,42 +48,58 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
         this.showToast(status);
       }
       if(status == 'COMPLETED'){
-        const response = await fetch(workflowRun.output[0].url);
-        // here image is url/location of image
-        const blob = await response.blob();
-        const file = new File([blob], imageName, {type: blob.type});
-        let data = new FormData();
-        data.append('image-file', file);
-        const resp = await fetch('/api/images', { method: 'POST', body: data });
+        const imageURL = workflowRun.output[0].url;
+        // const response = await fetch(workflowRun.output[0].url);
+        // const blob = await response.blob();
+        // const file = new File([blob], imageName, {type: blob.type});
+        const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imageName}&signed_url=${imageURL}`, { method: 'POST' });
         refreshImages();
-        // add on img element inside the div with id thumbnails using one url as source
-        // let img = document.createElement('img');
-        // img.src = workflowRun.output[0].thumbnail_url;
-        // img.style.width = '5em';
-        // img.style.height = '5em';
-        // img.id = workflowId;
-        // this.views[workflowId] = workflowRun.output[0].url;
-        // document.getElementById('thumbnails').appendChild(img);
-        //react to img being clicked and print the img id
-        // img.onclick = (ev) => {
-        //   let imgURL = this.views[ev.target.id];
-        //   let imageElement  = document.getElementById('image');
-        //   imageElement.style.visibility = 'visible';
-        //   imageElement.style.backgroundImage = `url(${imgURL})`;
-        //   imageElement.style.backgroundRepeat = 'no-repeat,no-repeat';
-        // }
       }
     };
   }
 
-  refreshImages(){
-    
-    let newImageItem = `<sl-carousel-item>
-      <img
-        alt="The sun shines on the mountains and trees (by Adam Kool on Unsplash)"
-        src="/assets/examples/carousel/mountains.jpg"
-      />
-    </sl-carousel-item>`;
+  async refreshImages(){
+    const thumbnailscontainer = document.getElementById('thumbnails-container');
+    thumbnailscontainer.innerHTML = '';
+    IMAGES_SIGNED_URLS = {};
+    if(CURRENT_MODEL !== ''){
+      const resp = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`);
+      if (!resp.ok) {
+          throw new Error(await resp.text());
+      }
+      const images = await resp.json();
+      const imagesAI = images.filter(i => !i.name.includes('lmv'));
+      for(const imageAI of imagesAI){
+        try{
+          const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imageAI.name}`);
+          if (!resp.ok) {
+              throw new Error(await resp.text());
+          }
+          const signedURL = await resp.json();
+          let imageLMV = images.find(i => i.name === 'lmv'+imageAI.name);
+          const respLMV = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imageLMV.name}`);
+          if (!respLMV.ok) {
+            throw new Error(await respLMV.text());
+          }
+          const signedURLLMV = await respLMV.json();
+          IMAGES_SIGNED_URLS[signedURL.url]=signedURLLMV.url;
+          thumbnailscontainer.innerHTML += `<sl-carousel-item>
+            <img
+              class="thumbnail-image"
+              alt=""
+              src="${signedURL.url}"
+              onclick="updateImages('${signedURL.url}')"
+            />
+          </sl-carousel-item>`;
+        }
+        catch(error){
+          console.log(`Error loading image ${imageAI.name}`)
+        }
+      }
+    }
+    else{
+      this.showToast('SELECT A MODEL FIRST!');
+    }
   }
 
   retrieveDepthMapPixels(){
@@ -170,12 +186,15 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
     const { left: startX, top: startY, right: endX, bottom: endY } = this.viewer.impl.getCanvasBoundingClientRect();
     let vw = endX-startX;
     let vh = endY-startY;
+    //For sd15 ratio
+    vw = 512;
+    vh = 512;
     await this.viewer.getScreenShot(vw, vh, async (blob) => {
-
-      var file = new File([blob], imagename);
+      let fileBlob = await fetch(blob).then(r => r.blob());
+      var file = new File([fileBlob], imagename);
       let data = new FormData();
       data.append('image-file', file);
-      const resp = await fetch('/api/images', { method: 'POST', body: data });
+      const resp = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`, { method: 'POST', body: data });
       // var tag = document.createElement('a');
       // tag.href = blob;
       // tag.download = `${imagename}.png`;

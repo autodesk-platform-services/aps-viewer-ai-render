@@ -1,8 +1,10 @@
 const APS = require('forge-apis');
 const fetch = require('node-fetch');
+const fs = require('fs');
 const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES, PUBLIC_TOKEN_SCOPES, COMFY_KEY } = require('../config.js');
 
 const internalAuthClient = new APS.AuthClientThreeLegged(APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
+const internalAuthClient2LO = new APS.AuthClientTwoLegged(APS_CLIENT_ID, APS_CLIENT_SECRET, INTERNAL_TOKEN_SCOPES, true);
 const publicAuthClient = new APS.AuthClientThreeLegged(APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
 
 const service = module.exports = {};
@@ -43,6 +45,13 @@ service.authRefreshMiddleware = async (req, res, next) => {
         expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
     };
     next();
+};
+
+service.getInternalToken = async () => {
+    if (!internalAuthClient2LO.isAuthorized()) {
+        await internalAuthClient2LO.authenticate();
+    }
+    return internalAuthClient2LO.getCredentials();
 };
 
 service.getUserProfile = async (token) => {
@@ -249,6 +258,29 @@ service.uploadObject = async (objectName, filePath, bucketKey) => {
     } else {
         return results[0].completed;
     }
+};
+
+service.uploadObjectWithBuffer = async (objectName, buffer, bucketKey) => {
+    await service.ensureBucketExists(bucketKey);
+    const results = await new APS.ObjectsApi().uploadResources(
+        bucketKey,
+        [{ objectKey: objectName, data: buffer }],
+        { useAcceleration: false, minutesExpiration: 15 },
+        null,
+        await service.getInternalToken()
+    );
+    if (results[0].error) {
+        throw results[0].completed;
+    } else {
+        return results[0].completed;
+    }
+};
+
+service.getSignedURL = async (bucketKey, objectName) => {
+    await service.ensureBucketExists(bucketKey);
+    var authToken = await service.getInternalToken();
+    var url = await new APS.ObjectsApi().createSignedResource(bucketKey, objectName, { minutesExpiration: 30 }, {access:'read'}, internalAuthClient2LO, authToken);
+    return url;
 };
 
 service.urnify = (id) => Buffer.from(id).toString('base64').replace(/=/g, '');

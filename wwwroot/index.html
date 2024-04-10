@@ -11,6 +11,14 @@
     <title>Autodesk Platform Services: AI pretty pictures stuff</title>
     <script>
         var CURRENT_MODEL = '';
+        var IMAGES_SIGNED_URLS = {};
+        async function updateImages(signedURLAI){
+            const leftImage = document.getElementById('image-left');
+            const rightImage = document.getElementById('image-right');
+            let signedURLLMV = IMAGES_SIGNED_URLS[signedURLAI];
+            leftImage.src = signedURLLMV;
+            rightImage.src = signedURLAI;
+        }
     </script>
 </head>
 
@@ -24,7 +32,7 @@
     <div id="sidebar">
         <input type="text" id="positiveprompt" placeholder="your positive prompt goes here">
         <div id="tree"></div>
-        <div class="mouse-dragging" id="images-container">
+        <div class="mouse-dragging" id="thumbnails-container" style="visibility: hidden;">
             <sl-carousel pagination id="itens-container">
               <sl-carousel-item>
                 <img
