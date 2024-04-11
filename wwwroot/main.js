@@ -10,7 +10,8 @@ carousel.toggleAttribute('mouse-dragging', true);
 const viewerSwitch = document.getElementById('viewer-switch');
 const viewerContainer = document.getElementById('preview');
 const imagesContainer  = document.getElementById('image-comparer');
-const thumbnailsContainer = document.getElementById('thumbnails-container');
+// const thumbnailsContainer = document.getElementById('thumbnails-container');
+const thumbnailsContainer = document.getElementById('itens-container');
 viewerSwitch.addEventListener('sl-change', (ev) => {
     if(ev.target.checked){
         viewerContainer.style.visibility = 'visible';
@@ -27,6 +28,7 @@ viewerSwitch.addEventListener('sl-change', (ev) => {
 try {
     const resp = await fetch('/api/auth/profile');
     if (resp.ok) {
+        // thumbnailsContainer.style.visibility = 'hidden';
         const user = await resp.json();
         login.innerText = `Logout (${user.name})`;
         login.onclick = () => window.location.replace('/api/auth/logout');

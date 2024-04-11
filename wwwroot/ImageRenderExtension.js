@@ -59,7 +59,7 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
   }
 
   async refreshImages(){
-    const thumbnailscontainer = document.getElementById('thumbnails-container');
+    const thumbnailscontainer = document.getElementById('itens-container');
     thumbnailscontainer.innerHTML = '';
     IMAGES_SIGNED_URLS = {};
     if(CURRENT_MODEL !== ''){
@@ -85,7 +85,6 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           IMAGES_SIGNED_URLS[signedURL.url]=signedURLLMV.url;
           thumbnailscontainer.innerHTML += `<sl-carousel-item>
             <img
-              class="thumbnail-image"
               alt=""
               src="${signedURL.url}"
               onclick="updateImages('${signedURL.url}')"
