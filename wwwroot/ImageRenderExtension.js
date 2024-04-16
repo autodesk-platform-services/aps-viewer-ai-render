@@ -49,19 +49,16 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
       }
       if(status == 'COMPLETED'){
         const imageURL = workflowRun.output[0].url;
-        // const response = await fetch(workflowRun.output[0].url);
-        // const blob = await response.blob();
-        // const file = new File([blob], imageName, {type: blob.type});
         const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imageName}&signed_url=${imageURL}`, { method: 'POST' });
         refreshImages();
       }
     };
+    this.refreshImages();
   }
 
   async refreshImages(){
     const thumbnailscontainer = document.getElementById('itens-container');
     thumbnailscontainer.innerHTML = '';
-    IMAGES_SIGNED_URLS = {};
     if(CURRENT_MODEL !== ''){
       const resp = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`);
       if (!resp.ok) {
@@ -82,12 +79,12 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
             throw new Error(await respLMV.text());
           }
           const signedURLLMV = await respLMV.json();
-          IMAGES_SIGNED_URLS[signedURL.url]=signedURLLMV.url;
+          // IMAGES_SIGNED_URLS[signedURL.url]=signedURLLMV.url;
           thumbnailscontainer.innerHTML += `<sl-carousel-item>
             <img
               alt=""
               src="${signedURL.url}"
-              onclick="updateImages('${signedURL.url}')"
+              onclick="updateImages('${signedURL.url}', '${signedURLLMV.url}')"
             />
           </sl-carousel-item>`;
         }
@@ -194,12 +191,6 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
       let data = new FormData();
       data.append('image-file', file);
       const resp = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`, { method: 'POST', body: data });
-      // var tag = document.createElement('a');
-      // tag.href = blob;
-      // tag.download = `${imagename}.png`;
-      // document.body.appendChild(tag);
-      // tag.click();
-      // document.body.removeChild(tag);
     });
   }
 

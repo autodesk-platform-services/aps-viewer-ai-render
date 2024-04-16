@@ -10,15 +10,20 @@
     <link rel="stylesheet" href="/main.css">
     <title>Autodesk Platform Services: AI pretty pictures stuff</title>
     <script>
-        var CURRENT_MODEL = '';
-        var IMAGES_SIGNED_URLS = {};
-        async function updateImages(signedURLAI){
-            const leftImage = document.getElementById('image-left');
-            const rightImage = document.getElementById('image-right');
-            let signedURLLMV = IMAGES_SIGNED_URLS[signedURLAI];
-            leftImage.src = signedURLLMV;
-            rightImage.src = signedURLAI;
+      var CURRENT_MODEL = '';
+      var GLOBAL_VIEWER;
+      async function updateImages(signedURLAI, signedURLLMV){
+        const viewerSwitch = document.getElementById('viewer-switch');
+        viewerSwitch.click();
+        const leftImage = document.getElementById('image-left');
+        const rightImage = document.getElementById('image-right');
+        leftImage.src = signedURLLMV;
+        leftImage.onclick = (ev) => {
+          const viewerSwitch = document.getElementById('viewer-switch');
+          viewerSwitch.click();
         }
+        rightImage.src = signedURLAI;
+      }
     </script>
 </head>
 
@@ -26,31 +31,34 @@
     <div id="header">
         <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png" alt="Autodesk Platform Services">
         <span class="title">AI stuff</span>
-        <sl-switch id="viewer-switch" size="medium" checked>Viewer</sl-switch>
+        <sl-switch id="viewer-switch" size="medium" checked style="visibility: hidden;">Viewer</sl-switch>
         <button id="login" style="visibility: hidden;">Login</button>
     </div>
     <div id="sidebar">
         <input type="text" id="positiveprompt" placeholder="your positive prompt goes here">
         <div id="tree"></div>
-        <div class="mouse-dragging" id="thumbnails-container" style="visibility:hidden;">
-            <sl-carousel pagination id="itens-container">
-            </sl-carousel>
-          </div>          
+        <div class="styles-dragging" id="styles-container" style="visibility:hidden;">
+          <sl-carousel pagination id="styles-container">
+          </sl-carousel>
+        </div>          
     </div>
     <div id="preview" class="comp viewer-container"></div>
     <sl-image-comparer id="image-comparer" style="visibility:hidden;">
-        <img id="image-left"
-          slot="before"
-          src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80&sat=-100&bri=-5"
-          alt="Place for the Viewer image."
-        />
-        <img id="image-right"
-          slot="after"
-          src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
-          alt="Place for AI rendered image."
-        />
-      </sl-image-comparer>
-    <!-- <div id="image" style="visibility: hidden;"></div> -->
+      <img id="image-left"
+        slot="before"
+        src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80&sat=-100&bri=-5"
+        alt="Place for the Viewer image."
+      />
+      <img id="image-right"
+        slot="after"
+        src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+        alt="Place for AI rendered image."
+      />
+    </sl-image-comparer>
+    <div class="thumbnails-dragging" id="thumbnails-container">
+      <sl-carousel navigation pagination slides-per-page="2" slides-per-move="1" id="itens-container">
+      </sl-carousel>
+    </div>
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="https://unpkg.com/inspire-tree@4.3.1/dist/inspire-tree.js"></script>

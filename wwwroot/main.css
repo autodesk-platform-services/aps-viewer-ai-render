@@ -39,6 +39,7 @@ body, html {
   right: 0;
   top: 3em;
   bottom: 5em;
+  height: 60%;
   /* position: absolute; */
 }
 
@@ -79,6 +80,10 @@ body, html {
   margin: 0.5em;
 }
 
+#itens-container {
+  height: 100% !important;
+}
+
 @media (max-width: 768px) {
   #sidebar {
       width: 100%;
@@ -96,12 +101,21 @@ body, html {
   position: absolute;
   left: 25%;
   top: 3em;
+  height: 60%;
 }
 
-.mouse-dragging{
+.styles-dragging{
   width: 50%;
   margin-top: 3em;
   margin-left: 3em;
+}
+
+.thumbnails-dragging{
+  width: 75%;
+  position: absolute;
+  bottom: 1em;
+  right: 0;
+  height: 30%;
 }
 
 .icon-hub:before {
