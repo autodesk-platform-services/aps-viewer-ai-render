@@ -58,7 +58,7 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           if(status == 'COMPLETED'){
             const imageURL = workflowRun.output[0].url;
             const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imageName}&signed_url=${imageURL}`, { method: 'POST' });
-            refreshImages();
+            GLOBAL_VIEWER.getExtension('ImageRenderExtension').refreshImages();
           }
       });
     };
@@ -109,19 +109,6 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
     }
   }
 
-  retrieveDepthMapPixels(){
-    this.viewer.impl.renderer().mrtFlags()
-    const depthTarget = this.viewer.impl.renderer().getDepthTarget();
-    const gl = this.viewer.canvas.getContext('webgl2');
-    const pixels = new Float32Array(4 * depthTarget.width * depthTarget.height);
-    const framebuffer = depthTarget.__webglFramebuffer;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);        
-    gl.viewport(0, 0, depthTarget.width, depthTarget.height);
-    gl.readPixels(0, 0, depthTarget.width, depthTarget.height, gl.RGBA, gl.FLOAT, pixels);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    return pixels;
-  }
-
   createToolbarButton(buttonId, buttonIconUrl, buttonTooltip) {
     let group = this.viewer.toolbar.getControl('images-toolbar-group');
     if (!group) {
@@ -158,35 +145,6 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
       this._button = null;
     }
     return true;
-  }
-
-  async getViewElements() {
-    const tool = this.viewer.getExtension('Autodesk.BoxSelection').boxSelectionTool;
-    const { left: startX, top: startY, right: endX, bottom: endY } = this.viewer.impl.getCanvasBoundingClientRect();
-    tool.startPoint.set(startX, startY);
-    tool.endPoint.set(endX, endY);
-    let selection = await tool.getSelection();
-    return selection[0].ids;
-  }
-
-  findLeafNodes(model) {
-    return new Promise(function (resolve, reject) {
-      model.getObjectTree(function (tree) {
-        let leaves = [];
-        tree.enumNodeChildren(tree.getRootId(), function (dbid) {
-          if (tree.getChildCount(dbid) === 0) {
-            leaves.push(dbid);
-          }
-        }, true /* recursively enumerate children's children as well */);
-        resolve(leaves);
-      }, reject);
-    });
-  }
-
-  getBulkPropertiesAsync(model, dbIds, options) {
-    return new Promise((resolve, reject) => {
-      model.getBulkProperties2(dbIds, options, resolve, resolve);
-    });
   }
 
   async generateThumbnail(imagename, callback) {
