@@ -30,8 +30,17 @@
           if(mouseClickRelativePosition*100 > imageDividerRelativePosition){
             viewerContainer.style.visibility = 'visible';
             imagesContainer.style.visibility = 'hidden';
+            try{
+              let lmvImageSRC = document.getElementById('image-right').src;
+              let currentImageName = GLOBAL_VIEWER.getExtension('ImageRenderExtension').viewsNames[lmvImageSRC];
+              let viewStateString = localStorage.getItem(currentImageName);
+              let viewStateOBJ = JSON.parse(viewStateString);
+              GLOBAL_VIEWER.restoreState(viewStateOBJ);
+            }
+            catch(err){
+              console.log('Not able to restore the Viewer state for this image!')
+            }
           }
-          
         }
       }
 
@@ -80,6 +89,12 @@
     </sl-image-comparer>
     <div class="thumbnails-dragging" id="thumbnails-container">
       <sl-carousel navigation pagination slides-per-page="2" slides-per-move="1" id="itens-container">
+        <sl-carousel-item>
+          <img
+            alt=""
+            src="/noimg.png"
+          />
+        </sl-carousel-item>
       </sl-carousel>
     </div>
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script>

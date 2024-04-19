@@ -32,7 +32,6 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           let data = new FormData();
           data.append('image-file', file);
           const respLMVIMGUpload = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`, { method: 'POST', body: data });
-          //ge
           const respLMVSignedDownloadURL = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imagename}`);
           let lmvSignedDownloadURLjson = await respLMVSignedDownloadURL.json();
           // a post request to /api/workflow using fetch
@@ -57,8 +56,10 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           }
           if(status == 'COMPLETED'){
             const imageURL = workflowRun.output[0].url;
-            const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imageName}&signed_url=${imageURL}`, { method: 'POST' });
+            const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imagename.replace('lmv','')}&signed_url=${imageURL}`, { method: 'POST' });
             GLOBAL_VIEWER.getExtension('ImageRenderExtension').refreshImages();
+            let viewState = GLOBAL_VIEWER.getState();
+            localStorage.setItem(imagename, JSON.stringify(viewState));
           }
       });
     };
