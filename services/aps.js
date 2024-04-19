@@ -84,37 +84,37 @@ service.getItemVersions = async (projectId, itemId, token) => {
   return resp.body.data;
 };
 
-service.runWorkflow = async (workflowId, positiveprompt, negativePrompt) => {
+service.runWorkflow = async (workflowId, positiveprompt, negativePrompt, signedDownloadURL) => {
     const url = "https://comfy.icu/api/v1/workflows/"+workflowId+"/runs";
-    const prompt = {
+    const payload = {
         "prompt": {
             "3": {
                 "_meta": {
                     "title": "KSampler"
                 },
                 "inputs": {
-                    "cfg": 8,
-                    "seed": 597368515889542,
+                    "cfg": 4,
+                    "seed": 70988865502061,
                     "model": [
                         "4",
                         0
                     ],
-                    "steps": 20,
-                    "denoise": 1,
+                    "steps": 17,
+                    "denoise": 0.9,
                     "negative": [
                         "7",
                         0
                     ],
                     "positive": [
-                        "6",
+                        "22",
                         0
                     ],
-                    "scheduler": "normal",
+                    "scheduler": "karras",
                     "latent_image": [
-                        "5",
+                        "20",
                         0
                     ],
-                    "sampler_name": "euler"
+                    "sampler_name": "dpmpp_sde"
                 },
                 "class_type": "KSampler"
             },
@@ -126,17 +126,6 @@ service.runWorkflow = async (workflowId, positiveprompt, negativePrompt) => {
                     "ckpt_name": "architecturerealmix_v1repair.safetensors"
                 },
                 "class_type": "CheckpointLoaderSimple"
-            },
-            "5": {
-                "_meta": {
-                    "title": "Empty Latent Image"
-                },
-                "inputs": {
-                    "width": 512,
-                    "height": 512,
-                    "batch_size": 1
-                },
-                "class_type": "EmptyLatentImage"
             },
             "6": {
                 "_meta": {
@@ -192,7 +181,93 @@ service.runWorkflow = async (workflowId, positiveprompt, negativePrompt) => {
                     "filename_prefix": "ComfyUI"
                 },
                 "class_type": "SaveImage"
+            },
+            "14": {
+                "_meta": {
+                    "title": "Preview Image"
+                },
+                "inputs": {
+                    "images": [
+                        "29",
+                        0
+                    ]
+                },
+                "class_type": "PreviewImage"
+            },
+            "19": {
+                "_meta": {
+                    "title": "Load Image"
+                },
+                "inputs": {
+                    "image": "image.png",
+                    "upload": "image"
+                },
+                "class_type": "LoadImage"
+            },
+            "20": {
+                "_meta": {
+                    "title": "VAE Encode"
+                },
+                "inputs": {
+                    "vae": [
+                        "4",
+                        2
+                    ],
+                    "pixels": [
+                        "19",
+                        0
+                    ]
+                },
+                "class_type": "VAEEncode"
+            },
+            "22": {
+                "_meta": {
+                    "title": "Apply ControlNet"
+                },
+                "inputs": {
+                    "image": [
+                        "29",
+                        0
+                    ],
+                    "strength": 0.8,
+                    "control_net": [
+                        "24",
+                        0
+                    ],
+                    "conditioning": [
+                        "6",
+                        0
+                    ]
+                },
+                "class_type": "ControlNetApply"
+            },
+            "24": {
+                "_meta": {
+                    "title": "Load ControlNet Model"
+                },
+                "inputs": {
+                    "control_net_name": "control_v11p_sd15_canny_fp16.safetensors"
+                },
+                "class_type": "ControlNetLoader"
+            },
+            "29": {
+                "_meta": {
+                    "title": "Canny Edge"
+                },
+                "inputs": {
+                    "image": [
+                        "19",
+                        0
+                    ],
+                    "resolution": 1472,
+                    "low_threshold": 80,
+                    "high_threshold": 250
+                },
+                "class_type": "CannyEdgePreprocessor"
             }
+        },
+        "files":{
+            "/input/image.png":signedDownloadURL
         }
     };
     const resp = await fetch(url, {
@@ -201,7 +276,7 @@ service.runWorkflow = async (workflowId, positiveprompt, negativePrompt) => {
             "content-type": "application/json",
             "authorization": "Bearer " + COMFY_KEY
         },
-        "body": JSON.stringify(prompt),
+        "body": JSON.stringify(payload),
         "method": "POST"
     });
     return await resp.json();

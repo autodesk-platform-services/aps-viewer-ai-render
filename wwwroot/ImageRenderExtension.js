@@ -18,7 +18,7 @@
 class ImageRenderExtension extends Autodesk.Viewing.Extension {
   constructor(viewer, options) {
     super(viewer, options);
-    this.views = {};
+    this.viewsNames = {};
   }
 
   onToolbarCreated(toolbar) {
@@ -26,32 +26,41 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
     this._button.onClick = async () => {
       //First we send the thumbnail to the OSS bucket
       const imageName = Date.now() + CURRENT_MODEL.split('.')[0] + '.png';
-      this.generateThumbnail('lmv'+imageName);
-      // a post request to /api/workflow using fetch
-      let positivePrompt = document.getElementById('positiveprompt').value;
-      let negativePrompt = 'ugly,nsfw';
-      let resp = await fetch(`/api/workflows?pos_prompt=${positivePrompt}&neg_prompt=${negativePrompt}`, {
-        method: 'POST'
+      await this.generateThumbnail('lmv'+imageName,  async (imagename, blob) =>{
+          let fileBlob = await fetch(blob).then(r => r.blob());
+          var file = new File([fileBlob], imagename);
+          let data = new FormData();
+          data.append('image-file', file);
+          const respLMVIMGUpload = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`, { method: 'POST', body: data });
+          //ge
+          const respLMVSignedDownloadURL = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imagename}`);
+          let lmvSignedDownloadURLjson = await respLMVSignedDownloadURL.json();
+          // a post request to /api/workflow using fetch
+          let positivePrompt = document.getElementById('positiveprompt').value;
+          let negativePrompt = 'ugly,nsfw';
+          let respComfyWorkflow = await fetch(`/api/workflows?pos_prompt=${positivePrompt}&neg_prompt=${negativePrompt}&image_signed_url=${lmvSignedDownloadURLjson.url}`, {
+            method: 'POST'
+          });
+          let workflowJSON = await respComfyWorkflow.json();
+          let workflowId = workflowJSON.id;
+          let status = 'QUEUED';
+          let workflowRun = {};
+          while (status != 'COMPLETED' & status != 'ERROR') {
+            let respRunStatus = await fetch(`/api/workflows?run_id=${workflowId}`, {
+              method: 'GET'
+            });
+            workflowJSON = await respRunStatus.json();
+            status = workflowJSON.run.status;
+            workflowRun = workflowJSON.run;
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            this.showToast(status);
+          }
+          if(status == 'COMPLETED'){
+            const imageURL = workflowRun.output[0].url;
+            const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imageName}&signed_url=${imageURL}`, { method: 'POST' });
+            refreshImages();
+          }
       });
-      let workflowJSON = await resp.json();
-      let workflowId = workflowJSON.id;
-      let status = 'QUEUED';
-      let workflowRun = {};
-      while (status != 'COMPLETED' & status != 'ERROR') {
-        resp = await fetch(`/api/workflows?run_id=${workflowId}`, {
-          method: 'GET'
-        });
-        workflowJSON = await resp.json();
-        status = workflowJSON.run.status;
-        workflowRun = workflowJSON.run;
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        this.showToast(status);
-      }
-      if(status == 'COMPLETED'){
-        const imageURL = workflowRun.output[0].url;
-        const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imageName}&signed_url=${imageURL}`, { method: 'POST' });
-        refreshImages();
-      }
     };
     this.refreshImages();
   }
@@ -73,12 +82,14 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
               throw new Error(await resp.text());
           }
           const signedURL = await resp.json();
+          this.viewsNames[signedURL.url] = imageAI.name;
           let imageLMV = images.find(i => i.name === 'lmv'+imageAI.name);
           const respLMV = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imageLMV.name}`);
           if (!respLMV.ok) {
             throw new Error(await respLMV.text());
           }
           const signedURLLMV = await respLMV.json();
+          this.viewsNames[signedURLLMV.url] = imageLMV.name;
           // IMAGES_SIGNED_URLS[signedURL.url]=signedURLLMV.url;
           thumbnailscontainer.innerHTML += `<sl-carousel-item>
             <img
@@ -178,20 +189,14 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
     });
   }
 
-  async generateThumbnail(imagename) {
+  async generateThumbnail(imagename, callback) {
     const { left: startX, top: startY, right: endX, bottom: endY } = this.viewer.impl.getCanvasBoundingClientRect();
     let vw = endX-startX;
     let vh = endY-startY;
     //For sd15 ratio
-    vw = 512;
-    vh = 512;
-    await this.viewer.getScreenShot(vw, vh, async (blob) => {
-      let fileBlob = await fetch(blob).then(r => r.blob());
-      var file = new File([fileBlob], imagename);
-      let data = new FormData();
-      data.append('image-file', file);
-      const resp = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`, { method: 'POST', body: data });
-    });
+    // vw = 512;
+    // vh = 512;
+    this.viewer.getScreenShot(vw, vh, (blob) => callback(imagename, blob));
   }
 
   async showToast(message) {

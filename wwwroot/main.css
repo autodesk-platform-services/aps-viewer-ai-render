@@ -27,7 +27,7 @@ body, html {
 }
 
 #positiveprompt, #negativeprompt{
-  display: block;
+  display: inline;
   margin: 1em;
   height: 2em;
   width: 60%;

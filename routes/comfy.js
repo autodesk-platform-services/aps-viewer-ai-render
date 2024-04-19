@@ -5,7 +5,7 @@ let router = express.Router();
 
 router.post('/api/workflows', authRefreshMiddleware, async function (req, res, next) {
   try {
-    let workflowResponse = await runWorkflow("cs59kno7qoFMOarLGkPoM", req.query.pos_prompt, req.query.neg_prompt);
+    let workflowResponse = await runWorkflow("Di00YoTmfDekrkZuq4AYs", req.query.pos_prompt, req.query.neg_prompt, req.query.image_signed_url);
     res.json({ status: 'ok', id: workflowResponse.id });
   } catch (err) {
     next(err);
@@ -14,7 +14,7 @@ router.post('/api/workflows', authRefreshMiddleware, async function (req, res, n
 
 router.get('/api/workflows', authRefreshMiddleware, async function (req, res, next) {
   try {
-    let runStatus = await getWorkflowRunStatus("cs59kno7qoFMOarLGkPoM", req.query.run_id);
+    let runStatus = await getWorkflowRunStatus("Di00YoTmfDekrkZuq4AYs", req.query.run_id);
     res.json({ status: 'ok', run: runStatus });
   } catch (err) {
     next(err);

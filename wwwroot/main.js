@@ -6,20 +6,8 @@ const login = document.getElementById('login');
 // const thumbnailscontainer = document.getElementById('itens-container');
 // thumbnailscontainer.toggleAttribute('mouse-dragging', true);
 
-const viewerSwitch = document.getElementById('viewer-switch');
 const viewerContainer = document.getElementById('preview');
 const imagesContainer  = document.getElementById('image-comparer');
-viewerSwitch.addEventListener('sl-change', (ev) => {
-    if(ev.target.checked){
-        viewerContainer.style.visibility = 'visible';
-        imagesContainer.style.visibility = 'hidden';
-    }
-    else{
-        viewerContainer.style.visibility = 'hidden';
-        imagesContainer.style.visibility = 'visible';
-        NOP_VIEWER.getExtension('ImageRenderExtension').refreshImages();
-    }
-});
 try {
     const resp = await fetch('/api/auth/profile');
     if (resp.ok) {

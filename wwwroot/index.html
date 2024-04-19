@@ -11,18 +11,33 @@
     <title>Autodesk Platform Services: AI pretty pictures stuff</title>
     <script>
       var CURRENT_MODEL = '';
+      var CURRENT_IMAGE = '';
       var GLOBAL_VIEWER;
       async function updateImages(signedURLAI, signedURLLMV){
-        const viewerSwitch = document.getElementById('viewer-switch');
-        viewerSwitch.click();
+        const viewerContainer = document.getElementById('preview');
+        const imagesContainer  = document.getElementById('image-comparer');
+        viewerContainer.style.visibility = 'hidden';
+        imagesContainer.style.visibility = 'visible';
         const leftImage = document.getElementById('image-left');
         const rightImage = document.getElementById('image-right');
         leftImage.src = signedURLLMV;
-        leftImage.onclick = (ev) => {
-          const viewerSwitch = document.getElementById('viewer-switch');
-          viewerSwitch.click();
-        }
         rightImage.src = signedURLAI;
+        const imagesdiv = document.getElementById('image-comparer');
+        imagesdiv.ondblclick = (ev) => {
+          let imageDividerRelativePosition = ev.target.position;
+          let imageComparerRect = ev.target.getBoundingClientRect();
+          let mouseClickRelativePosition = (ev.clientX - imageComparerRect.left)/imageComparerRect.width;
+          if(mouseClickRelativePosition*100 > imageDividerRelativePosition){
+            viewerContainer.style.visibility = 'visible';
+            imagesContainer.style.visibility = 'hidden';
+          }
+          
+        }
+      }
+
+      async function fillPositivePrompt(text){
+        const positiveprompt = document.getElementById('positiveprompt');
+        positiveprompt.value = text;
       }
     </script>
 </head>
@@ -31,11 +46,19 @@
     <div id="header">
         <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png" alt="Autodesk Platform Services">
         <span class="title">AI stuff</span>
-        <sl-switch id="viewer-switch" size="medium" checked style="visibility: hidden;">Viewer</sl-switch>
         <button id="login" style="visibility: hidden;">Login</button>
     </div>
     <div id="sidebar">
         <input type="text" id="positiveprompt" placeholder="your positive prompt goes here">
+        <sl-tooltip content="AEC">
+          <sl-icon-button name="house-door" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, architectural photography, photorealistic (sharp)`)"></sl-icon-button>
+        </sl-tooltip>
+        <sl-tooltip content="MFG">
+          <sl-icon-button name="car-front" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, manufacturing photography, photorealistic (sharp)`)"></sl-icon-button>
+        </sl-tooltip>
+        <sl-tooltip content="SUNSET">
+          <sl-icon-button name="sunset" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, (sunset), photorealistic (sharp)`)"></sl-icon-button>
+        </sl-tooltip>
         <div id="tree"></div>
         <div class="styles-dragging" id="styles-container" style="visibility:hidden;">
           <sl-carousel pagination id="styles-container">
