@@ -34,7 +34,6 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           const respLMVIMGUpload = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`, { method: 'POST', body: data });
           const respLMVSignedDownloadURL = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imagename}`);
           let lmvSignedDownloadURLjson = await respLMVSignedDownloadURL.json();
-          // a post request to /api/workflow using fetch
           let positivePrompt = document.getElementById('positiveprompt').value;
           let negativePrompt = 'ugly,nsfw';
           let respComfyWorkflow = await fetch(`/api/workflows?pos_prompt=${positivePrompt}&neg_prompt=${negativePrompt}&image_signed_url=${lmvSignedDownloadURLjson.url}`, {
@@ -44,6 +43,16 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           let workflowId = workflowJSON.id;
           let status = 'QUEUED';
           let workflowRun = {};
+          //now we add the new image as thumbnail with loading gif
+          const thumbnailscontainer = document.getElementById('itens-container');
+          thumbnailscontainer.innerHTML += `<sl-carousel-item>
+            <img
+              alt=""
+              src="${lmvSignedDownloadURLjson.url}"
+              onclick="updateImages('${lmvSignedDownloadURLjson.url}', './loading.gif')"
+            />
+          </sl-carousel-item>`;
+          //And in parallel we check comfy.icu workflow status
           while (status != 'COMPLETED' & status != 'ERROR') {
             let respRunStatus = await fetch(`/api/workflows?run_id=${workflowId}`, {
               method: 'GET'
@@ -52,7 +61,7 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
             status = workflowJSON.run.status;
             workflowRun = workflowJSON.run;
             await new Promise(resolve => setTimeout(resolve, 3000));
-            this.showToast(status);
+            // this.showToast(status);
           }
           if(status == 'COMPLETED'){
             const imageURL = workflowRun.output[0].url;
