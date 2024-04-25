@@ -30,11 +30,15 @@ export function initViewer(container) {
 
 export function loadModel(viewer, urn) {
   function onDocumentLoadSuccess(doc) {
-      viewer.loadDocumentNode(doc, doc.getRoot().getDefaultGeometry());
+    viewer.loadDocumentNode(doc, doc.getRoot().getDefaultGeometry());
+    const viewerContainer = document.getElementById('preview');
+    const imagesContainer  = document.getElementById('image-comparer');
+    viewerContainer.style.visibility = 'visible';
+    imagesContainer.style.visibility = 'hidden';
   }
   function onDocumentLoadFailure(code, message) {
-      alert('Could not load model. See console for more details.');
-      console.error(message);
+    alert('Could not load model. See console for more details.');
+    console.error(message);
   }
   Autodesk.Viewing.Document.load('urn:' + urn, onDocumentLoadSuccess, onDocumentLoadFailure);
 }

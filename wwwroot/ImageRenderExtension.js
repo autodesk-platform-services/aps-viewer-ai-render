@@ -43,15 +43,23 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           let workflowId = workflowJSON.id;
           let status = 'QUEUED';
           let workflowRun = {};
+          this.showToast("JOB TRIGGERED!");
           //now we add the new image as thumbnail with loading gif
           const thumbnailscontainer = document.getElementById('itens-container');
           thumbnailscontainer.innerHTML += `<sl-carousel-item>
             <img
               alt=""
               src="${lmvSignedDownloadURLjson.url}"
-              onclick="updateImages('${lmvSignedDownloadURLjson.url}', './loading.gif')"
+              onclick="updateImages('${lmvSignedDownloadURLjson.url}', './powered-by-autodesk-blk-rgb.png', true)"
             />
           </sl-carousel-item>`;
+          // thumbnailscontainer.innerHTML += `<sl-carousel-item>
+          //   <img
+          //     alt=""
+          //     src="${lmvSignedDownloadURLjson.url}"
+          //     onclick="updateImages('${lmvSignedDownloadURLjson.url}', './loading.gif', true)"powered-by-autodesk-blk-rgb
+          //   />
+          // </sl-carousel-item>`;
           //And in parallel we check comfy.icu workflow status
           while (status != 'COMPLETED' & status != 'ERROR') {
             let respRunStatus = await fetch(`/api/workflows?run_id=${workflowId}`, {
@@ -60,6 +68,8 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
             workflowJSON = await respRunStatus.json();
             status = workflowJSON.run.status;
             workflowRun = workflowJSON.run;
+            const leftImage = document.getElementById('image-left');
+            loopImage(leftImage, 3000)
             await new Promise(resolve => setTimeout(resolve, 3000));
             // this.showToast(status);
           }
@@ -69,6 +79,10 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
             GLOBAL_VIEWER.getExtension('ImageRenderExtension').refreshImages();
             let viewState = GLOBAL_VIEWER.getState();
             localStorage.setItem(imagename, JSON.stringify(viewState));
+            const viewerContainer = document.getElementById('preview');
+            const imagesContainer  = document.getElementById('image-comparer');
+            viewerContainer.style.visibility = 'visible';
+            imagesContainer.style.visibility = 'hidden';
           }
       });
     };

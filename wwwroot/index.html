@@ -13,7 +13,7 @@
       var CURRENT_MODEL = '';
       var CURRENT_IMAGE = '';
       var GLOBAL_VIEWER;
-      async function updateImages(signedURLAI, signedURLLMV){
+      async function updateImages(signedURLAI, signedURLLMV, isLoadingGif = false){
         const viewerContainer = document.getElementById('preview');
         const imagesContainer  = document.getElementById('image-comparer');
         viewerContainer.style.visibility = 'hidden';
@@ -22,6 +22,12 @@
         const rightImage = document.getElementById('image-right');
         leftImage.src = signedURLLMV;
         rightImage.src = signedURLAI;
+        if(isLoadingGif){
+          const { left: startX, top: startY, right: endX, bottom: endY } = GLOBAL_VIEWER.impl.getCanvasBoundingClientRect();
+          let vw = endX-startX;
+          let vh = endY-startY;
+          leftImage.style += ` height: ${vh}px; width: ${vw}px;`;
+        }
         const imagesdiv = document.getElementById('image-comparer');
         imagesdiv.ondblclick = (ev) => {
           let imageDividerRelativePosition = ev.target.position;
@@ -41,6 +47,20 @@
               console.log('Not able to restore the Viewer state for this image!')
             }
           }
+        }
+      }
+
+      async function loopImage(element, miliseconds){
+        let counter = 0;
+        while(counter < miliseconds){
+          let opacity = 0;
+          element.style.opacity = `${opacity}%`;
+          while(opacity<100){
+            await new Promise(resolve => setTimeout(resolve, 100));
+            opacity += 10;
+            element.style.opacity = `${opacity}%`;
+          }
+          counter += 1000;
         }
       }
 
