@@ -19,7 +19,7 @@ body, html {
 }
 
 #sidebar {
-  width: 25%;
+  width: 100%;
   left: 0;
   top: 3em;
   bottom: 5em;
@@ -30,12 +30,12 @@ body, html {
   display: inline;
   margin: 1em;
   height: 2em;
-  width: 60%;
+  width: 50%;
   text-align: center;
 }
 
 #preview {
-  width: 75%;
+  width: 100%;
   right: 0;
   top: 3em;
   bottom: 5em;
@@ -55,7 +55,7 @@ body, html {
   margin: 0 0.5em;
 }
 
-#login {
+#login, #sidebar-show {
   font-family: ArtifaktElement;
   font-size: 1em;
 }
@@ -99,7 +99,7 @@ body, html {
 
 #image-comparer{
   position: absolute;
-  left: 25%;
+  /* left: 25%; */
   top: 3em;
   height: 60%;
 }
@@ -111,10 +111,9 @@ body, html {
 }
 
 .thumbnails-dragging{
-  width: 75%;
+  width: 100%;
   position: absolute;
   bottom: 1em;
-  right: 0;
   height: 30%;
 }
 
