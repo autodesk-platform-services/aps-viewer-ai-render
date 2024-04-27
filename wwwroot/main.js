@@ -17,6 +17,8 @@ try {
         login.onclick = () => window.location.replace('/api/auth/logout');
         GLOBAL_VIEWER = await initViewer(viewerContainer);
         initTree('#tree', (id) => loadModel(GLOBAL_VIEWER, window.btoa(id).replace(/=/g, '')));
+        CURRENT_MODEL = "racbasicsampleproject.rvt" 
+        const res = loadModel(GLOBAL_VIEWER, "dXJuOmFkc2sud2lwcHJvZDpmcy5maWxlOnZmLjdFbFI3cTh0U1llNnlRUHBBaWNhd2c/dmVyc2lvbj0x");      
     } else {
         login.innerText = 'Login';
         login.onclick = () => window.location.replace('/api/auth/login');

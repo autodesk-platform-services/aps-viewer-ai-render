@@ -35,7 +35,7 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           const respLMVSignedDownloadURL = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imagename}`);
           let lmvSignedDownloadURLjson = await respLMVSignedDownloadURL.json();
           let positivePrompt = document.getElementById('positiveprompt').value;
-          let negativePrompt = 'ugly,nsfw';
+          let negativePrompt = 'hazy,bloom,blurry,nsfw';
           let respComfyWorkflow = await fetch(`/api/workflows?pos_prompt=${positivePrompt}&neg_prompt=${negativePrompt}&image_signed_url=${lmvSignedDownloadURLjson.url}`, {
             method: 'POST'
           });
@@ -50,7 +50,7 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
             <img
               alt=""
               src="${lmvSignedDownloadURLjson.url}"
-              onclick="updateImages('${lmvSignedDownloadURLjson.url}', './powered-by-autodesk-blk-rgb.png', true)"
+              onclick="updateImages('${lmvSignedDownloadURLjson.url}', './powered-by-autodesk-blk-rgb.gif', true)"
             />
           </sl-carousel-item>`;
           // thumbnailscontainer.innerHTML += `<sl-carousel-item>
@@ -69,9 +69,7 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
             status = workflowJSON.run.status;
             workflowRun = workflowJSON.run;
             const leftImage = document.getElementById('image-left');
-            loopImage(leftImage, 3000)
             await new Promise(resolve => setTimeout(resolve, 3000));
-            // this.showToast(status);
           }
           if(status == 'COMPLETED'){
             const imageURL = workflowRun.output[0].url;
