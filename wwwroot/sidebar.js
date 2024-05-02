@@ -61,11 +61,13 @@ export function initTree(selector, onSelectionChanged) {
       const tokens = node.id.split('|');
       if (tokens[0] === 'version') {
           onSelectionChanged(tokens[1]);
+          debugger;
           CURRENT_MODEL = node.itree.parent.text.replace(/[A-Z]/g, function(match) {
             return match.toLowerCase();
         }).replace(/[^_.a-z0-9]/g, '');
           // NIO_VIEWER.getExtension('').refreshImages();
       }
   });
+
   return new InspireTreeDOM(tree, { target: selector });
 }

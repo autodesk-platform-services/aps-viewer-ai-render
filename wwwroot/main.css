@@ -38,17 +38,18 @@ body, html {
   width: 100%;
   right: 0;
   top: 3em;
-  bottom: 5em;
-  height: 60%;
+  height: 85%;
   /* position: absolute; */
 }
 
 #image {
   resize: horizontal;
   z-index:2;
-  position:fixed;
-  
+  position:fixed;  
 }
+
+#image-left{ width:100%}
+#image-right{ width:100%}
 
 #header > * {
   height: 2em;
@@ -101,20 +102,16 @@ body, html {
   position: absolute;
   /* left: 25%; */
   top: 3em;
-  height: 60%;
-}
-
-.styles-dragging{
-  width: 50%;
-  margin-top: 3em;
-  margin-left: 3em;
+  height: 85%;
+  width:100%;
+  background-color:#ddd;
 }
 
 .thumbnails-dragging{
   width: 100%;
   position: absolute;
   bottom: 1em;
-  height: 30%;
+  height: 10%;
 }
 
 .icon-hub:before {

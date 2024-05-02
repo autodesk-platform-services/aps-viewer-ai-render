@@ -93,14 +93,14 @@ service.runWorkflow = async (workflowId, positiveprompt, negativePrompt, signedD
                     "title": "KSampler"
                 },
                 "inputs": {
-                    "cfg": 4,
+                    "cfg": 7,
                     "seed": 70988865502061,
                     "model": [
                         "4",
                         0
                     ],
-                    "steps": 17,
-                    "denoise": 0.9,
+                    "steps": 20,
+                    "denoise": 0.95,
                     "negative": [
                         "7",
                         0

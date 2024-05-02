@@ -50,20 +50,6 @@
         }
       }
 
-      async function loopImage(element, miliseconds){
-        let counter = 0;
-        while(counter < miliseconds){
-          let opacity = 0;
-          element.style.opacity = `${opacity}%`;
-          while(opacity<100){
-            await new Promise(resolve => setTimeout(resolve, 100));
-            opacity += 10;
-            element.style.opacity = `${opacity}%`;
-          }
-          counter += 1000;
-        }
-      }
-
       window.onload = () => {
         const drawer = document.querySelector('.drawer-placement-start');
         const openButton = document.getElementById('sidebar-show');
@@ -85,67 +71,45 @@
     <div id="header">
         <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png" alt="Autodesk Platform Services">
         <span class="title">AI stuff</span>
-        <button id="sidebar-show">Show Sidebar</button>
+        <input type="text" id="positiveprompt" value="modern interior design, architectural rendering, light wood floors, glass windows, studio lighting, photorealistic rendering, masterpiece (sharp)" placeholder="your positive prompt goes here">
+        <sl-tooltip content="AEC">
+          <sl-icon-button name="house-door" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`modern interior design, architectural rendering, light wood floors, glass windows, studio lighting, photorealistic rendering, masterpiece (sharp)`)"></sl-icon-button>
+        </sl-tooltip>
+        <sl-tooltip content="MFG">
+          <sl-icon-button name="car-front" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`exterior building, modern architecture, sunlight, masterpiece (sharp)`)"></sl-icon-button>
+        </sl-tooltip>
+        <sl-tooltip content="SUNSET">
+          <sl-icon-button name="sunset" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`2d floor plan, interior, top view, modern architecture, sunlight, light wood, light green, photorealistic (sharp)`)"></sl-icon-button>
+        </sl-tooltip>
+
+        <button id="sidebar-show">Show Sidebar</button>        
         <button id="login" style="visibility: hidden;">Login</button>
     </div>
     <sl-drawer label="Hubs Browser" placement="start" class="drawer-placement-start">
       <div id="sidebar">
-        <input type="text" id="positiveprompt" placeholder="your positive prompt goes here">
-        <sl-tooltip content="AEC">
-          <sl-icon-button name="house-door" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, architectural photography, photorealistic (sharp)`)"></sl-icon-button>
-        </sl-tooltip>
-        <sl-tooltip content="MFG">
-          <sl-icon-button name="car-front" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, manufacturing photography, photorealistic (sharp)`)"></sl-icon-button>
-        </sl-tooltip>
-        <sl-tooltip content="SUNSET">
-          <sl-icon-button name="sunset" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, (sunset), photorealistic (sharp)`)"></sl-icon-button>
-        </sl-tooltip>
         <div id="tree"></div>
-        <div class="styles-dragging" id="styles-container" style="visibility:hidden;">
-          <sl-carousel pagination id="styles-container">
-          </sl-carousel>
-        </div>          
       </div>
       <sl-button id="hide-sidebar" slot="footer" variant="primary">Hide</sl-button>
     </sl-drawer>
-    <!-- <div id="sidebar">
-        <input type="text" id="positiveprompt" placeholder="your positive prompt goes here">
-        <sl-tooltip content="AEC">
-          <sl-icon-button name="house-door" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, architectural photography, photorealistic (sharp)`)"></sl-icon-button>
-        </sl-tooltip>
-        <sl-tooltip content="MFG">
-          <sl-icon-button name="car-front" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, manufacturing photography, photorealistic (sharp)`)"></sl-icon-button>
-        </sl-tooltip>
-        <sl-tooltip content="SUNSET">
-          <sl-icon-button name="sunset" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`colorful,  sunlight, (sunset), photorealistic (sharp)`)"></sl-icon-button>
-        </sl-tooltip>
-        <div id="tree"></div>
-        <div class="styles-dragging" id="styles-container" style="visibility:hidden;">
-          <sl-carousel pagination id="styles-container">
-          </sl-carousel>
-        </div>          
-    </div> -->
     <div id="preview" class="comp viewer-container"></div>
     <sl-image-comparer id="image-comparer" style="visibility:hidden;">
       <img id="image-left"
         slot="before"
-        src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80&sat=-100&bri=-5"
         alt="Place for the Viewer image."
       />
       <img id="image-right"
         slot="after"
-        src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
         alt="Place for AI rendered image."
       />
     </sl-image-comparer>
     <div class="thumbnails-dragging" id="thumbnails-container">
-      <sl-carousel navigation pagination slides-per-page="2" slides-per-move="1" id="itens-container">
-        <sl-carousel-item>
-          <img
-            alt=""
-            src="/noimg.png"
-          />
-        </sl-carousel-item>
+      <sl-carousel navigation pagination slides-per-page="6" slides-per-move="1" id="itens-container">
+        <sl-carousel-item style="background: var(--sl-color-blue-200);">Slide 1</sl-carousel-item>
+        <sl-carousel-item style="background: var(--sl-color-blue-300);">Slide 2</sl-carousel-item>
+        <sl-carousel-item style="background: var(--sl-color-blue-200);">Slide 1</sl-carousel-item>
+        <sl-carousel-item style="background: var(--sl-color-blue-300);">Slide 2</sl-carousel-item>
+        <sl-carousel-item style="background: var(--sl-color-blue-200);">Slide 1</sl-carousel-item>
+        <sl-carousel-item style="background: var(--sl-color-blue-300);">Slide 2</sl-carousel-item>
       </sl-carousel>
     </div>
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script>
