@@ -1,4 +1,3 @@
-//
 // Copyright (c) Autodesk, Inc. All rights reserved
 //
 // Permission to use, copy, modify, and distribute this software in
@@ -50,17 +49,10 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
             <img
               alt=""
               src="${lmvSignedDownloadURLjson.url}"
-              onclick="updateImages('${lmvSignedDownloadURLjson.url}', './powered-by-autodesk-blk-rgb.gif', true)"
+              onclick="updateImages('./loading.gif', '${lmvSignedDownloadURLjson.url}', true)"
             />
           </sl-carousel-item>`;
-          // thumbnailscontainer.innerHTML += `<sl-carousel-item>
-          //   <img
-          //     alt=""
-          //     src="${lmvSignedDownloadURLjson.url}"
-          //     onclick="updateImages('${lmvSignedDownloadURLjson.url}', './loading.gif', true)"powered-by-autodesk-blk-rgb
-          //   />
-          // </sl-carousel-item>`;
-          //And in parallel we check comfy.icu workflow status
+          // And in parallel we check comfy.icu workflow status
           while (status != 'COMPLETED' & status != 'ERROR') {
             let respRunStatus = await fetch(`/api/workflows?run_id=${workflowId}`, {
               method: 'GET'
