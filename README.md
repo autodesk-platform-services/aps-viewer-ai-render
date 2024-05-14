@@ -8,6 +8,10 @@ Rendering is a required and sometimes painful part of the process in the lives o
 
 ![Thumbnail](./assets/thumbnail.gif)
 
+## Demo
+
+Read only demo at https://aps-viewer-ai-render.autodesk.io
+
 ## Prerequisites
 
 This sample leverages the [Hubs Browser tutorial](https://tutorials.autodesk.io/tutorials/hubs-browser/) as a base to select designs and render those with the Viewer.
