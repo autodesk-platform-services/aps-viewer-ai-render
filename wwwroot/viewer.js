@@ -7,12 +7,16 @@ async function getAccessToken(callback) {
           throw new Error(await resp.text());
       }
       const { access_token, expires_in } = await resp.json();
+      console.log('access_token', access_token);
+      console.log('expires_in', expires_in);
       callback(access_token, expires_in);
   } catch (err) {
       alert('Could not obtain access token. See the console for more details.');
       console.error(err);        
   }
 }
+
+// var getAccessToken = () => {"token"} 
 
 export function initViewer(container) {
   return new Promise(function (resolve, reject) {

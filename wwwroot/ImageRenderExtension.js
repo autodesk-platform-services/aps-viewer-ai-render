@@ -23,8 +23,8 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
   onToolbarCreated(toolbar) {
     this._button = this.createToolbarButton('imagerender-button', 'https://img.icons8.com/ios/30/camera--v3.png', 'Image Render');
     this._button.onClick = async () => {
-      // this.showToast("This is just a read-only demo! Gen AI is disabled");
-      // return;
+      this.showToast("This is just a read-only demo! Gen AI is disabled!");
+      return;
       //First we send the thumbnail to the OSS bucket
       const imageName = Date.now() + CURRENT_MODEL.split('.')[0] + '.png';
       await this.generateThumbnail('lmv'+imageName,  async (imagename, blob) =>{

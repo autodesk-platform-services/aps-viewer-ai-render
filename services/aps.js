@@ -34,28 +34,24 @@ service.authCallbackMiddleware = async (req, res, next) => {
 };
 
 service.authRefreshMiddleware = async (req, res, next) => {
-    const { refresh_token, expires_at } = req.session;
-    if (!refresh_token) {
-        res.status(401).end();
-        return;
-    }
+    // const { refresh_token, expires_at } = req.session;
 
-    if (expires_at < Date.now()) {
-        const internalCredentials = await internalAuthClient.refreshToken({ refresh_token });
-        const publicCredentials = await publicAuthClient.refreshToken(internalCredentials);
-        req.session.public_token = publicCredentials.access_token;
-        req.session.internal_token = internalCredentials.access_token;
-        req.session.refresh_token = publicCredentials.refresh_token;
-        req.session.expires_at = Date.now() + internalCredentials.expires_in * 1000;
-    }
-    req.internalOAuthToken = {
-        access_token: req.session.internal_token,
-        expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
-    };
-    req.publicOAuthToken = {
-        access_token: req.session.public_token,
-        expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
-    };
+    // if (expires_at < Date.now()) {
+    //     const internalCredentials = await internalAuthClient.refreshToken({ refresh_token });
+    //     const publicCredentials = await publicAuthClient.refreshToken(internalCredentials);
+    //     req.session.public_token = publicCredentials.access_token;
+    //     req.session.internal_token = internalCredentials.access_token;
+    //     req.session.refresh_token = publicCredentials.refresh_token;
+    //     req.session.expires_at = Date.now() + internalCredentials.expires_in * 1000;
+    // }
+    // req.internalOAuthToken = {
+    //     access_token: req.session.internal_token,
+    //     expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
+    // };
+    // req.publicOAuthToken = {
+    //     access_token: req.session.public_token,
+    //     expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
+    // };
     next();
 };
 
