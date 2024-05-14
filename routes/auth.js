@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile, getPublic2loToken } = require('../services/aps.js');
 
 let router = express.Router();
 
@@ -18,6 +18,14 @@ router.get('/api/auth/callback', authCallbackMiddleware, function (req, res) {
 
 router.get('/api/auth/token', authRefreshMiddleware, function (req, res) {
     res.json(req.publicOAuthToken);
+});
+
+router.get('/api/auth/2lotoken', async function(req, res, next){
+    try {
+        res.json(await getPublic2loToken());
+    } catch (err) {
+        next(err);
+    }
 });
 
 router.get('/api/auth/profile', authRefreshMiddleware, async function (req, res, next) {

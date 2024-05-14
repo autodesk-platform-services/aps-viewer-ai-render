@@ -2,7 +2,7 @@
 
 async function getAccessToken(callback) {
   try {
-      const resp = await fetch('/api/auth/token');
+      const resp = await fetch('/api/auth/2lotoken');
       if (!resp.ok) {
           throw new Error(await resp.text());
       }
@@ -18,7 +18,7 @@ export function initViewer(container) {
   return new Promise(function (resolve, reject) {
       Autodesk.Viewing.Initializer({ env: 'AutodeskProduction', getAccessToken }, function () {
           const config = {
-              extensions: ['Autodesk.DocumentBrowser', 'ImageRenderExtension', 'Autodesk.NPR']
+              extensions: ['Autodesk.DocumentBrowser', 'ImageRenderExtension']
           };
           let viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
           viewer.start();

@@ -3,13 +3,25 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES, PUBLIC_TOKEN_SCOPES, COMFY_KEY } = require('../config.js');
 
-const internalAuthClient = new APS.AuthClientThreeLegged(APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, INTERNAL_TOKEN_SCOPES);
 const internalAuthClient2LO = new APS.AuthClientTwoLegged(APS_CLIENT_ID, APS_CLIENT_SECRET, INTERNAL_TOKEN_SCOPES, true);
-const publicAuthClient = new APS.AuthClientThreeLegged(APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, PUBLIC_TOKEN_SCOPES);
+const publicAuthClient2LO = new APS.AuthClientTwoLegged(APS_CLIENT_ID, APS_CLIENT_SECRET, PUBLIC_TOKEN_SCOPES, true);
 
 const service = module.exports = {};
 
-service.getAuthorizationUrl = () => internalAuthClient.generateAuthUrl();
+service.getInternalToken = async () => {
+    if (!internalAuthClient2LO.isAuthorized()) {
+        await internalAuthClient2LO.authenticate();
+    }
+    return internalAuthClient2LO.getCredentials();
+};
+
+service.getPublic2loToken = async () => {
+    if (!publicAuthClient2LO.isAuthorized()) {
+        await publicAuthClient2LO.authenticate();
+    }
+    const credentials = await publicAuthClient2LO.authenticate();
+    return credentials;
+};
 
 service.authCallbackMiddleware = async (req, res, next) => {
     const internalCredentials = await internalAuthClient.getToken(req.query.code);
@@ -45,43 +57,6 @@ service.authRefreshMiddleware = async (req, res, next) => {
         expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
     };
     next();
-};
-
-service.getInternalToken = async () => {
-    if (!internalAuthClient2LO.isAuthorized()) {
-        await internalAuthClient2LO.authenticate();
-    }
-    return internalAuthClient2LO.getCredentials();
-};
-
-service.getUserProfile = async (token) => {
-    const resp = await new APS.UserProfileApi().getUserProfile(internalAuthClient, token);
-    return resp.body;
-};
-
-service.getHubs = async (token) => {
-  const resp = await new APS.HubsApi().getHubs(null, internalAuthClient, token);
-  return resp.body.data;
-};
-
-service.getProjects = async (hubId, token) => {
-  const resp = await new APS.ProjectsApi().getHubProjects(hubId, null, internalAuthClient, token);
-  return resp.body.data;
-};
-
-service.getProjectContents = async (hubId, projectId, folderId, token) => {
-  if (!folderId) {
-      const resp = await new APS.ProjectsApi().getProjectTopFolders(hubId, projectId, internalAuthClient, token);
-      return resp.body.data;
-  } else {
-      const resp = await new APS.FoldersApi().getFolderContents(projectId, folderId, null, internalAuthClient, token);
-      return resp.body.data;
-  }
-};
-
-service.getItemVersions = async (projectId, itemId, token) => {
-  const resp = await new APS.ItemsApi().getItemVersions(projectId, itemId, null, internalAuthClient, token);
-  return resp.body.data;
 };
 
 service.runWorkflow = async (workflowId, positiveprompt, negativePrompt, signedDownloadURL) => {
