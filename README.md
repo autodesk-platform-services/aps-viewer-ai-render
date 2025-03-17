@@ -268,3 +268,4 @@ This sample is licensed under the terms of the [MIT License](http://opensource.o
 ## Written by
 
 Joao Martins [in/jpornelas](https://linkedin.com/in/jpornelas), [Developer Advocate](http://aps.autodesk.com)
+Jaime Rosales [in/jaimerosales](https://linkedin.com/in/jaimerosales), [Senior Developer Advocate](http://aps.autodesk.com)
