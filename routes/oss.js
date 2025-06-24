@@ -6,6 +6,7 @@ const fetch = require('node-fetch');
 const Buffer = require('buffer').Buffer 
 
 let router = express.Router();
+//Change this to your bucket key prefix
 const BUCKETKEYPREFIX = 'jpom-';
 
 router.get('/api/images', async function (req, res, next) {

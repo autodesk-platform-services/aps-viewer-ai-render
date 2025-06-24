@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css">
     <link rel="stylesheet" href="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-light.min.css">
     <link rel="stylesheet" href="/main.css">
-    <title>Autodesk Platform Services: AI pretty pictures stuff</title>
+    <title>Autodesk Platform Services: AI Pretty Pictures</title>
     <script>
       var CURRENT_MODEL = '';
       var CURRENT_IMAGE = '';
@@ -70,7 +70,11 @@
 <body>
     <div id="header">
         <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png" alt="Autodesk Platform Services">
-        <span class="title">AI stuff</span>
+        <span class="title">AI Pretty Pictures</span>
+        <sl-tooltip content="Check this to download images and work locally with Comfy UI">
+          <input type="checkbox" id="downloadimages" checked>
+          <label for="downloadimages">Download Images</label>
+        </sl-tooltip>
         <input type="text" id="positiveprompt" value="modern interior design, architectural rendering, light wood floors, glass windows, studio lighting, photorealistic rendering, masterpiece (sharp)" placeholder="your positive prompt goes here">
         <sl-tooltip content="AEC">
           <sl-icon-button name="house-door" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`modern interior design, architectural rendering, light wood floors, glass windows, studio lighting, photorealistic rendering, masterpiece (sharp)`)"></sl-icon-button>
