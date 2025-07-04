@@ -33,54 +33,53 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           if (document.getElementById('downloadimages').checked) {
             this.createDownloadLink(URL.createObjectURL(fileBlob), imagename, 'Download Thumbnail');
           }
-          this.uploadImageToBucket(imagename, fileBlob);
-          // var file = new File([fileBlob], imagename);
-          // let data = new FormData();
-          // data.append('image-file', file);
-          // const respLMVIMGUpload = await fetch(`/api/images?bucket_key=${CURRENT_MODEL}`, { method: 'POST', body: data });
-          const respLMVSignedDownloadURL = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imagename}`);
-          let lmvSignedDownloadURLjson = await respLMVSignedDownloadURL.json();
-          let positivePrompt = document.getElementById('positiveprompt').value;
-          let negativePrompt = 'hazy,bloom,blurry,nsfw';
-          let respComfyWorkflow = await fetch(`/api/workflows?pos_prompt=${positivePrompt}&neg_prompt=${negativePrompt}&image_signed_url=${lmvSignedDownloadURLjson.url}`, {
-            method: 'POST'
-          });
-          let workflowJSON = await respComfyWorkflow.json();
-          let workflowId = workflowJSON.id;
-          let status = 'QUEUED';
-          let workflowRun = {};
-          this.showToast("JOB TRIGGERED!");
-          //now we add the new image as thumbnail with loading gif
-          const thumbnailscontainer = document.getElementById('itens-container');
-          thumbnailscontainer.innerHTML += `<sl-carousel-item>
-            <img
-              alt=""
-              src="${lmvSignedDownloadURLjson.url}"
-              onclick="updateImages('./loading.gif', '${lmvSignedDownloadURLjson.url}', true)"
-            />
-          </sl-carousel-item>`;
-          // And in parallel we check comfy.icu workflow status
-          while (status != 'COMPLETED' & status != 'ERROR') {
-            let respRunStatus = await fetch(`/api/workflows?run_id=${workflowId}`, {
-              method: 'GET'
+          else{
+            this.uploadImageToBucket(imagename, fileBlob);
+            const respLMVSignedDownloadURL = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_key=${imagename}`);
+            let lmvSignedDownloadURLjson = await respLMVSignedDownloadURL.json();
+            let positivePrompt = document.getElementById('positiveprompt').value;
+            let negativePrompt = 'hazy,bloom,blurry,nsfw';
+            let respComfyWorkflow = await fetch(`/api/workflows?pos_prompt=${positivePrompt}&neg_prompt=${negativePrompt}&image_signed_url=${lmvSignedDownloadURLjson.url}`, {
+              method: 'POST'
             });
-            workflowJSON = await respRunStatus.json();
-            status = workflowJSON.run.status;
-            workflowRun = workflowJSON.run;
-            const leftImage = document.getElementById('image-left');
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            let workflowJSON = await respComfyWorkflow.json();
+            let workflowId = workflowJSON.id;
+            let status = 'QUEUED';
+            let workflowRun = {};
+            this.showToast("JOB TRIGGERED!");
+            //now we add the new image as thumbnail with loading gif
+            const thumbnailscontainer = document.getElementById('itens-container');
+            thumbnailscontainer.innerHTML += `<sl-carousel-item>
+              <img
+                alt=""
+                src="${lmvSignedDownloadURLjson.url}"
+                onclick="updateImages('./loading.gif', '${lmvSignedDownloadURLjson.url}', true)"
+              />
+            </sl-carousel-item>`;
+            // And in parallel we check comfy.icu workflow status
+            while (status != 'COMPLETED' & status != 'ERROR') {
+              let respRunStatus = await fetch(`/api/workflows?run_id=${workflowId}`, {
+                method: 'GET'
+              });
+              workflowJSON = await respRunStatus.json();
+              status = workflowJSON.run.status;
+              workflowRun = workflowJSON.run;
+              const leftImage = document.getElementById('image-left');
+              await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+            if(status == 'COMPLETED'){
+              const imageURL = workflowRun.output[0].url;
+              const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imagename.replace('lmv','')}&signed_url=${imageURL}`, { method: 'POST' });
+              GLOBAL_VIEWER.getExtension('ImageRenderExtension').refreshImages();
+              let viewState = GLOBAL_VIEWER.getState();
+              localStorage.setItem(imagename, JSON.stringify(viewState));
+              const viewerContainer = document.getElementById('preview');
+              const imagesContainer  = document.getElementById('image-comparer');
+              viewerContainer.style.visibility = 'visible';
+              imagesContainer.style.visibility = 'hidden';
+            }
           }
-          if(status == 'COMPLETED'){
-            const imageURL = workflowRun.output[0].url;
-            const resp = await fetch(`/api/signedurl?bucket_key=${CURRENT_MODEL}&object_name=${imagename.replace('lmv','')}&signed_url=${imageURL}`, { method: 'POST' });
-            GLOBAL_VIEWER.getExtension('ImageRenderExtension').refreshImages();
-            let viewState = GLOBAL_VIEWER.getState();
-            localStorage.setItem(imagename, JSON.stringify(viewState));
-            const viewerContainer = document.getElementById('preview');
-            const imagesContainer  = document.getElementById('image-comparer');
-            viewerContainer.style.visibility = 'visible';
-            imagesContainer.style.visibility = 'hidden';
-          }
+          
       });
     };
     this.refreshImages();
@@ -233,11 +232,12 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
         const url = canvas.toDataURL('image/png');
         this.createDownloadLink(url, `${imageName}-depth-map.png`, 'Download Working Depth Map');
       }
-
-      //upload the depth map to the bucket
-      // const blob = new Blob([data], { type: 'image/png' });
-      // const fileBlob = new File([blob], `${imageName}-depth-map.png`);
-      // this.uploadImageToBucket(imagename, fileBlob);
+      else{
+        //upload the depth map to the bucket
+        const blob = new Blob([data], { type: 'image/png' });
+        const fileBlob = new File([blob], `${imageName}-depth-map.png`);
+        this.uploadImageToBucket(imagename, fileBlob);
+      }
   }
 
   // Create normal map from RGB channels
@@ -282,11 +282,12 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
         const url = canvas.toDataURL('image/png');
         this.createDownloadLink(url, `${imageName}-normal-map.png`, 'Download Normal Map');
       }
-
-      //upload the normal map to the bucket
-      // const blob = new Blob([data], { type: 'image/png' });
-      // const fileBlob = new File([blob], `${imageName}-normal-map.png`);
-      // this.uploadImageToBucket(imagename, fileBlob);
+      else{
+        //upload the normal map to the bucket
+        const blob = new Blob([data], { type: 'image/png' });
+        const fileBlob = new File([blob], `${imageName}-normal-map.png`);
+        this.uploadImageToBucket(imagename, fileBlob);
+      }
   }
 
   // Helper function to create download links
