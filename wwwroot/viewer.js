@@ -2,7 +2,7 @@
 
 async function getAccessToken(callback) {
   try {
-      const resp = await fetch('/api/auth/token');
+      const resp = await fetch('/api/auth/viewtoken');
       if (!resp.ok) {
           throw new Error(await resp.text());
       }

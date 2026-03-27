@@ -66,6 +66,21 @@ service.getInternalToken = async () => {
     return creds.access_token;
 };
 
+let viewerTokenCache = { token: null, expiresAt: 0 };
+
+service.getViewerToken = async () => {
+    if (viewerTokenCache.expiresAt > Date.now()) {
+        return {
+            access_token: viewerTokenCache.token,
+            expires_in: Math.round((viewerTokenCache.expiresAt - Date.now()) / 1000)
+        };
+    }
+    const creds = await authClient.getTwoLeggedToken(APS_CLIENT_ID, APS_CLIENT_SECRET, [Scopes.ViewablesRead]);
+    viewerTokenCache.token = creds.access_token;
+    viewerTokenCache.expiresAt = Date.now() + creds.expires_in * 1000;
+    return { access_token: creds.access_token, expires_in: creds.expires_in };
+};
+
 service.getUserProfile = async (token) => {
     const resp = await authClient.getUserInfo('Bearer ' + token.access_token);
     return resp;

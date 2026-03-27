@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile, getViewerToken } = require('../services/aps.js');
 const { APS_CLIENT_ID } = require('../config.js');
 
 let router = express.Router();
@@ -23,6 +23,15 @@ router.get('/api/auth/callback', authCallbackMiddleware, function (req, res) {
 
 router.get('/api/auth/token', authRefreshMiddleware, function (req, res) {
     res.json(req.publicOAuthToken);
+});
+
+router.get('/api/auth/viewtoken', async function (req, res, next) {
+    try {
+        const token = await getViewerToken();
+        res.json(token);
+    } catch (err) {
+        next(err);
+    }
 });
 
 router.get('/api/auth/profile', authRefreshMiddleware, async function (req, res, next) {

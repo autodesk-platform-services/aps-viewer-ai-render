@@ -269,8 +269,7 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
         if (pixels[i] !== 0) validDepths.push(pixels[i]);
       }
       validDepths.sort((a, b) => a - b);
-      const minDepth = validDepths[Math.floor(validDepths.length * 0.01)];
-      const maxDepth = validDepths[Math.floor(validDepths.length * 0.99)];
+      const depthCount = validDepths.length;
 
       const canvas = document.createElement('canvas');
       canvas.width = w;
@@ -285,8 +284,14 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
           const depth = pixels[pixelIndex + depthChannel];
 
           let normalizedDepth = 0;
-          if (depth !== 0 && maxDepth > minDepth) {
-            normalizedDepth = ((depth - minDepth) / (maxDepth - minDepth)) * 255;
+          if (depth !== 0 && depthCount > 1) {
+            let lo = 0, hi = depthCount - 1;
+            while (lo <= hi) {
+              const mid = (lo + hi) >> 1;
+              if (validDepths[mid] <= depth) lo = mid + 1;
+              else hi = mid - 1;
+            }
+            normalizedDepth = Math.pow(lo / depthCount, 0.55) * 255;
           }
 
           const imageIndex = ((h - y - 1) * w + x) * 4;
@@ -405,9 +410,7 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
       }
 
       validDepths.sort((a, b) => a - b);
-
-      const minDepth = validDepths[Math.floor(validDepths.length * 0.01)];
-      const maxDepth = validDepths[Math.floor(validDepths.length * 0.99)];
+      const depthCount = validDepths.length;
 
       const canvas = document.createElement('canvas');
       canvas.width = w;
@@ -422,8 +425,14 @@ class ImageRenderExtension extends Autodesk.Viewing.Extension {
               const depth = pixels[pixelIndex + depthChannel];
 
               let normalizedDepth = 0;
-              if (depth !== 0 && maxDepth > minDepth) {
-                  normalizedDepth = ((depth - minDepth) / (maxDepth - minDepth)) * 255;
+              if (depth !== 0 && depthCount > 1) {
+                  let lo = 0, hi = depthCount - 1;
+                  while (lo <= hi) {
+                      const mid = (lo + hi) >> 1;
+                      if (validDepths[mid] <= depth) lo = mid + 1;
+                      else hi = mid - 1;
+                  }
+                  normalizedDepth = Math.pow(lo / depthCount, 0.55) * 255;
               }
 
               const imageIndex = ((h - y - 1) * w + x) * 4;

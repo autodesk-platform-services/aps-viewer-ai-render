@@ -59,6 +59,9 @@ body, html {
 #login, #sidebar-show {
   font-family: ArtifaktElement;
   font-size: 1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #header .title {

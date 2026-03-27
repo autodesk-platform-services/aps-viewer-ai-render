@@ -100,6 +100,26 @@
 </head>
 
 <body>
+    <style>
+      #header .title {
+        font-size: 1rem;
+      }
+      #header label {
+        font-size: 0.9rem;
+      }
+      #header button,
+      #header #sidebar-show,
+      #header #login {
+        font-size: 0.85rem !important;
+        padding: 4px 10px;
+      }
+      #header sl-icon-button {
+        font-size: 1rem !important;
+      }
+      #header sl-select {
+        font-size: 0.9rem !important;
+      }
+    </style>
     <div id="header">
         <img
           class="logo"
@@ -116,24 +136,24 @@
           id="workflow-select"
           value="qwen"
           size="small"
-          style="min-width: 220px; max-width: 220px; height: 56px; --sl-input-height-medium: 56px; --sl-input-height-small: 56px; line-height: 54px;"
+          style="min-width: 220px; max-width: 220px; height: 36px; --sl-input-height-medium: 36px; --sl-input-height-small: 36px; line-height: 34px; font-size:0.9rem;"
         >
           <sl-option value="qwen">Qwen Depth ControlNet</sl-option>
           <sl-option value="flux">Flux Depth ControlNet</sl-option>
         </sl-select>
-        <input type="text" id="positiveprompt" value="modern interior design, architectural rendering, light wood floors, glass windows, studio lighting, photorealistic rendering, masterpiece (sharp)" placeholder="your positive prompt goes here">
+        <input type="text" id="positiveprompt" value="modern interior design, architectural rendering, light wood floors, glass windows, studio lighting, photorealistic rendering, masterpiece (sharp)" placeholder="your positive prompt goes here" style="font-size: 0.9rem;">
         <sl-tooltip content="AEC">
-          <sl-icon-button name="house-door" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`modern interior design, architectural rendering, light wood floors, glass windows, studio lighting, photorealistic rendering, masterpiece (sharp)`)"></sl-icon-button>
+          <sl-icon-button name="house-door" label="AEC" style="font-size: 1rem;" onclick="fillPositivePrompt(`modern interior design, architectural rendering, light wood floors, glass windows, studio lighting, photorealistic rendering, masterpiece (sharp)`)"></sl-icon-button>
         </sl-tooltip>
         <sl-tooltip content="MFG">
-          <sl-icon-button name="car-front" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`exterior building, modern architecture, sunlight, masterpiece (sharp)`)"></sl-icon-button>
+          <sl-icon-button name="car-front" label="AEC" style="font-size: 1rem;" onclick="fillPositivePrompt(`exterior building, modern architecture, sunlight, masterpiece (sharp)`)"></sl-icon-button>
         </sl-tooltip>
         <sl-tooltip content="SUNSET">
-          <sl-icon-button name="sunset" label="AEC" style="font-size: 1.5rem;" onclick="fillPositivePrompt(`2d floor plan, interior, top view, modern architecture, sunlight, light wood, light green, photorealistic (sharp)`)"></sl-icon-button>
+          <sl-icon-button name="sunset" label="AEC" style="font-size: 1rem;" onclick="fillPositivePrompt(`2d floor plan, interior, top view, modern architecture, sunlight, light wood, light green, photorealistic (sharp)`)"></sl-icon-button>
         </sl-tooltip>
 
-        <button id="sidebar-show">Show Sidebar</button>
-        <button id="login" style="visibility: hidden;">Login</button>
+        <button id="sidebar-show" style="font-size: 0.85rem; padding: 4px 10px;">Show Sidebar</button>
+        <button id="login" style="visibility: hidden; font-size: 0.85rem; padding: 4px 10px;">Login</button>
     </div>
     <sl-drawer label="Hubs Browser" placement="start" class="drawer-placement-start">
       <sl-icon-button slot="header-actions" name="question-circle" label="Help" style="font-size: 1.25rem;" onclick="showHelpDialog()"></sl-icon-button>
