@@ -1,7 +1,12 @@
 const express = require('express');
 const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
+const { APS_CLIENT_ID } = require('../config.js');
 
 let router = express.Router();
+
+router.get('/api/auth/clientid', function (req, res) {
+    res.json({ clientId: APS_CLIENT_ID });
+});
 
 router.get('/api/auth/login', function (req, res) {
     res.redirect(getAuthorizationUrl());
